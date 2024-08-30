@@ -8,7 +8,12 @@
 
 library(SingleCellExperiment)
 library(singleCellTK)
-rawPatSCE  <- readRDS("Data/Stockholm/Raw_data/SCE/Raw_myasthenia.rds")
+#To make it possible to store tehse files on github which as a 100 MB
+#size limit, I have divided the patient file into three. 
+rawPatSCE1 <- readRDS("Data/Stockholm/Raw_data/Raw_myasthenia1.rds")
+rawPatSCE2 <- readRDS("Data/Stockholm/Raw_data/Raw_myasthenia2.rds")
+rawPatSCE3 <- readRDS("Data/Stockholm/Raw_data/Raw_myasthenia3.rds")
+rawPatSCE <- cbind(rawPatSCE1, rawPatSCE2, rawPatSCE3)
 rawCtrlSCE <- readRDS("Data/Stockholm/Raw_data/Raw_Kotliarov.rds") 
 
 #Now, we will sync the metadata and merge the datasets.
