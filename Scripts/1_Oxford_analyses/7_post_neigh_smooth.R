@@ -33,8 +33,8 @@ markerList <- list("B" = c("CD38", "CCR7", "CD95", "CD45", "CCR4", "IgD.TCRgd",
                              "CRTH2", "CD7",
                              "CD117", "CD218a"))
 
-dir.create("Results/Data/Combined_analysis_post_smooth", recursive = TRUE)
-dir.create("Results/Graphics/BIC_model_plots", recursive = TRUE)
+dir.create("Results/Data/Oxford/Analysis_post_smooth", recursive = TRUE)
+dir.create("Diagnostics/Oxford/BIC_model_plots", recursive = TRUE)
 subclusterability <- as.list(1:length(popVec))
 names(subclusterability) <- popVec
 hitPops <- c("EOMGhigh", "EOMGlow", "LOMGhigh", "LOMGlow")
@@ -49,7 +49,7 @@ for(x in popVec){
         mclustData <- mclustData[sample(1:nrow(mclustData), 5000),]
       }
       res <- mclustBIC(mclustData)
-      pdf(paste0("Results/Graphics/BIC_model_plots/", x, "_", y, "_model.pdf"))
+      pdf(paste0("Diagnostics/Oxford/BIC_model_plots/", x, "_", y, "_model.pdf"))
       plot(res)
       dev.off()
       #Now, our criterion is that we subcluster if the improvement in the statistic
@@ -82,7 +82,7 @@ for(x in popVec){
   subclusterability[[x]] <- locRes
 }
 
-saveRDS(subclusterability, "Results/Data/Combined_analysis_post_smooth/Subclusterability.rds")
+saveRDS(subclusterability, "Results/Data/Oxford/Analysis_post_smooth/Subclusterability.rds")
 #subclusterability <- readRDS("Results/Data/Combined_analysis_post_smooth/Subclusterability.rds")
 
 #Individual penalties have been tested in a previous round, and to optimise the 
@@ -226,7 +226,7 @@ pValDf <- do.call("rbind", lapply(popVec, function(x){
   rownames(locDat) <- paste0(x, "_", rownames(locDat))
   locDat
 }))
-write.csv(pValDf, "Results/Data/Combined_analysis_post_smooth/pValTable.csv")
+write.csv(pValDf, "Results/Data/Oxford/Analysis_post_smooth/pValTable.csv")
 
 #We now export a full frequency table. 
 freqTabBig <- do.call("cbind", lapply(popVec, function(x){
@@ -238,4 +238,4 @@ freqTabBig <- do.call("cbind", lapply(popVec, function(x){
 freqTabBig$Group <- freqTabBig$B_Group
 
 freqTabBig <- freqTabBig[,-grep("_Group", colnames(freqTabBig))]
-write.csv(freqTabBig, "Results/Data/Combined_analysis_post_smooth/freqTableAllPops.csv")
+write.csv(freqTabBig, "Results/Data/Oxford/Analysis_post_smooth/freqTableAllPops.csv")
