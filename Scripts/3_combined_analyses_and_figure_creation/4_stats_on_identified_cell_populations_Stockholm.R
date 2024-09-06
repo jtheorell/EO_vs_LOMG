@@ -7,7 +7,7 @@ stockColDat <- colData(sthlmProtDat)
 freqResList <- list()
 for(i in cellPops){
   print(i)
-  locDatPat <- readRDS(paste0("Results/Data/Oxford_and_Stockholm/Harmonisation/", i, "_Stockholm_data_with_Ox_neighbors.rds"))
+  locDatPat <- readRDS(paste0("../External/Oxford_and_Stockholm/Harmonisation/", i, "_Stockholm_data_with_Ox_neighbors.rds"))
   if(i == "ILC"){
     locMetaDatPat <- stockColDat[which(stockColDat$cellType == "NK"),]
   } else if(i == "TCRgd"){
@@ -78,16 +78,16 @@ for(i in cellPops){
 pValDf <- do.call("rbind", lapply(cellPops[-which(cellPops == "ILC")], function(x){
   locDat <- freqResList[[x]][[1]]
 }))
+
+dir.create("Results/Data/Oxford_and_Stockholm/Harmonisation")
 write.csv(pValDf, "Results/Data/Oxford_and_Stockholm/Harmonisation/pValTable_Stockholm.csv")
 
 #We now exclude the ones that are not significant. 
 pValDfSig <- pValDf[which(pValDf[,1] < 0.05),]
 round(pValDfSig, 4)
 
-#   B_LOMGlow_2 CD4T_EOMGlow_3 CD8T_LOMGlow_2   NK_EOMGlow_1   NK_EOMGlow_2 
-#        0.0306         0.0227         0.0119         0.0085         0.0037 
-#  NK_EOMGlow_3 
-#        0.0010 
+#   B_LOMGlow_2 CD4T_EOMGlow_3 CD8T_LOMGlow_2   NK_EOMGlow_1 
+#        0.0306         0.0227         0.0119         0.0028
 
 write.csv(pValDfSig, "Results/Data/Oxford_and_Stockholm/Harmonisation/Sign_in_Stockholm.csv")
 

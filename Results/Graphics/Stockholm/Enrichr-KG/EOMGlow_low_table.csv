@@ -1,0 +1,6 @@
+Term,Library,p-value,q-value,z-score,combined score
+decreased thymocyte number MP:0000715,MGI_Mammalian_Phenotype_Level_4_2021,0.000014525,0.008323,12.76,142.2
+decreased megakaryocyte cell number MP:0008255,MGI_Mammalian_Phenotype_Level_4_2021,0.000034459,0.009872,60.88,625.6
+embryonic lethality prior to organogenesis MP:0013292,MGI_Mammalian_Phenotype_Level_4_2021,0.000095081,0.01816,5.386,49.88
+small thymus MP:0000706,MGI_Mammalian_Phenotype_Level_4_2021,0.000168,0.01844,10.63,92.41
+abnormal T cell differentiation MP:0002145,MGI_Mammalian_Phenotype_Level_4_2021,0.000184,0.01844,10.42,89.59

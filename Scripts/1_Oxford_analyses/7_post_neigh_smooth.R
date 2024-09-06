@@ -83,27 +83,17 @@ for(x in popVec){
 }
 
 saveRDS(subclusterability, "Results/Data/Oxford/Analysis_post_smooth/Subclusterability.rds")
-#subclusterability <- readRDS("Results/Data/Combined_analysis_post_smooth/Subclusterability.rds")
+#subclusterability <- readRDS("Results/Data/Oxford/Analysis_post_smooth/Subclusterability.rds")
+
+#After having run this analysis all the way to the figures, it turns out that
+#the three NK cell clusters are all regulated in the same way, and are 
+#phenotypically very closely related with discernable differences only in CD8
+#and CD2. For biological reasons, they are therefore not clustered in this version. 
+subclusterability$NK$EOMGlow <- FALSE
 
 #Individual penalties have been tested in a previous round, and to optimise the 
 #ARIs and keep the number of clusters reasonable, the following values have been
 #established
-standardPenalties <- list("EOMGhigh" = 2^seq(7, 9, by = 0.5),
-                          "EOMGlow" = 2^seq(7, 9, by = 0.5),
-                          "LOMGhigh" = 2^seq(7, 9, by = 0.5),
-                          "LOMGlow" = 2^seq(7, 9, by = 0.5))
-penaltyList <- list("B" = standardPenalties,
-                  "CD4T" = list("EOMGhigh" = 2^seq(8, 9, by = 0.5),
-                                "EOMGlow" = 2^seq(6, 8, by = 0.5),
-                                "LOMGhigh" = 2^seq(7, 9, by = 0.5),
-                                "LOMGlow" = 2^seq(7, 9, by = 0.5)),
-                  "CD8T" = standardPenalties,
-                  "TCRgd" = standardPenalties,
-                  "NK" = list("EOMGhigh" = 2^seq(7, 9, by = 0.5),
-                              "EOMGlow" = 2^seq(7, 9, by = 0.5),
-                              "LOMGhigh" = 2^seq(7, 9, by = 0.5),
-                              "LOMGlow" = 2^seq(7, 9, by = 0.5)),
-                  "ILC" = standardPenalties)
 
 standardPenalties <- list("EOMGhigh" = 2^seq(5, 9, by = 0.5),
                           "EOMGlow" = 2^seq(5, 9, by = 0.5),
@@ -118,16 +108,12 @@ penaltyList <- list("B" = standardPenalties,
                     "TCRgd" = standardPenalties,
                     "NK" = standardPenalties,
                     "ILC" = standardPenalties)
-#############
-#FIC CD8 LOMG low, that needs fewer high penalties. The three lowest are enough. 
-
 
 #Now for the big loop
 freqResList <- list()
 for(i in popVec){
   print(i)
   datDir <- paste0("../External/Oxford/Resulting_data/", i, "/")
-  graphDir <- paste0("Results/Graphics/", i, "/")
   locFile<- readRDS(paste0(datDir, i, "_full_file_post_Euclid.rds"))
 
   modelDf <- locFile[,markerList[[i]]]
@@ -146,10 +132,11 @@ for(i in popVec){
                               plotDir = innerDir)
       saveRDS(locDepModel, 
               paste0(innerDir, "/DepecheR_model.rds"))
+      #locDepModel <- readRDS(paste0(innerDir, "/DepecheR_model.rds"))
       locFile$smoothGroupDeep[locRows] <- paste0(x, "_", locDepModel$clusterVector)
     } else if(length(which(locFile$SmoothGroup == x)) > 0){
       locRows <- which(locFile$SmoothGroup == x)
-      locFile$smoothGroupDeep[locRows] <- paste0(x, "_", locFile$SmoothGroup[locRows])
+      locFile$smoothGroupDeep[locRows] <- paste0(x, "_1")
     }
   }
   saveRDS(locFile, paste0(datDir, i, "_full_file_post_Euclid_including_subclusts.rds"))

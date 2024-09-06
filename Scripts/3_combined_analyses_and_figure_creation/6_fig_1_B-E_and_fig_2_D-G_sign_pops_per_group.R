@@ -12,7 +12,7 @@ runVec <- list("gated" = data.frame("focPops" = "Results/Data/Oxford_and_Stockho
                                    "stock" = "Results/Data/Oxford_and_Stockholm/Harmonisation/freqTable_Stockholm.csv"))
 oxMeta <- read.csv("Data/Oxford/Documentation/Metadata_per_id.csv")
 stockMeta <- read.csv("Data/Stockholm/Metadata/Metadata_combined_used.csv")
-
+dir.create("Results/Graphics/Oxford_and_Stockholm/Freqs_and_PLSDA")
 for(i in runVec){
   print(i[1])
   focusPopulations <- read.csv(i$focPops)$X
@@ -35,8 +35,7 @@ for(i in runVec){
         #the analysis again, but it needs to be here to create some consistency
         locDatFoc <- locDatFoc[,c(colnames(locDatFoc)[grep("naive", colnames(locDatFoc))],
                                   colnames(locDatFoc)[-grep("naive", colnames(locDatFoc))])]
-        ##############################
-        yLims <- c(-3, 2)
+        
       } else {
         locDatFoc$Age <- sapply(row.names(locDatFoc), function(x){
           oxMeta$Age[which(oxMeta$Label == gsub(".+_age_.._|_.+", "", x))]
@@ -49,7 +48,6 @@ for(i in runVec){
         locDatFoc$Group[which(locDatFoc$Group == "unclear")] <- "uncertain"
         plotName <- "Euclid_cluster"
         widthForGraph <- 14
-        yLims <- c(-3, 1)
       }
       freqTabLong <- reshape2::melt(locDatFoc, 
                                     id.vars = c("Group", "Donor", "Age", "Sex"))
@@ -87,16 +85,16 @@ for(i in runVec){
                   shape = freqTabLong$sexShape) +
         geom_violin(alpha = 0, scale = "width", width = 0.85, linewidth = 1, color = "black") +
         theme_bw() + scale_color_manual(values = c("red", "red4", "grey", "blue", "#555555", "#AA00FF"))+
-        scale_y_continuous(limits = yLims, expand = c(0,0))
+        scale_y_continuous(limits = c(-3, 2), expand = c(0,0))
       p
-      ggsave(paste0("Results/Graphics/Oxford_and_Stockholm/Freqs_and_PLSDA", plotName, "_freqs_", j, ".pdf"))
+      ggsave(paste0("Results/Graphics/Oxford_and_Stockholm/Freqs_and_PLSDA/", plotName, "_freqs_", j, ".pdf"))
       
       p <- p + theme(legend.position = "none",
                      axis.text = element_blank(),
                      axis.title = element_blank())
       
       p
-      ggsave(paste0("Results/Graphics/Oxford_and_Stockholm/Freqs_and_PLSDA", plotName, "_freqs_", j, "_stripped.pdf"), 
+      ggsave(paste0("Results/Graphics/Oxford_and_Stockholm/Freqs_and_PLSDA/", plotName, "_freqs_", j, "_stripped.pdf"), 
              width = widthForGraph, height = 4)
       
       #Now, for the PLS-DA
@@ -108,11 +106,9 @@ for(i in runVec){
       if(grepl("Gating", i$stock)){
         locNames <- row.names(locDatFoc)
         widthForGraph <- 8
-        yLims <- c(-3, 2)
       } else {
         locNames <- gsub(".+_age_.._|", "", row.names(locDat))
         widthForGraph <- 8
-        yLims <- c(-3, 1)
       }
       locDatFoc$Age <- sapply(locNames, function(x){
         stockMeta$Age[which(stockMeta$Sample_ID == x)]
@@ -159,16 +155,16 @@ for(i in runVec){
                   shape = freqTabLong$sexShape) +
         geom_violin(alpha = 0, scale = "width", width = 0.85, linewidth = 1, color = "black") +
         theme_bw() + scale_color_manual(values = c("red", "red4", "blue", "#AA00FF"))+
-        scale_y_continuous(limits = yLims, expand = c(0,0))
+        scale_y_continuous(limits = c(-3, 2), expand = c(0,0))
       p
-      ggsave(paste0("Results/Graphics/Oxford_and_Stockholm/Freqs_and_PLSDA", plotName, "_freqs_", j, ".pdf"))
+      ggsave(paste0("Results/Graphics/Oxford_and_Stockholm/Freqs_and_PLSDA/", plotName, "_freqs_", j, ".pdf"))
       
       p <- p + theme(legend.position = "none",
                      axis.text = element_blank(),
                      axis.title = element_blank())
       
       p
-      ggsave(paste0("Results/Graphics/Oxford_and_Stockholm/Freqs_and_PLSDA", plotName, "_freqs_", j, "_stripped.pdf"), 
+      ggsave(paste0("Results/Graphics/Oxford_and_Stockholm/Freqs_and_PLSDA/", plotName, "_freqs_", j, "_stripped.pdf"), 
              width = widthForGraph, height = 4)
       
       mgDat <- locDatFoc
@@ -205,10 +201,10 @@ for(i in runVec){
       geom_point() + theme_bw() +
       scale_color_manual(values = c("red","red4", "blue", "#AA00FF"))
     p
-    ggsave(paste0("Results/Graphics/Oxford_and_Stockholm/Freqs_and_PLSDA", plotName, "_sPLSDA_", j, ".pdf"))
+    ggsave(paste0("Results/Graphics/Oxford_and_Stockholm/Freqs_and_PLSDA/", plotName, "_sPLSDA_", j, ".pdf"))
     
     p + theme(legend.position = "none")
-    ggsave(paste0("Results/Graphics/Oxford_and_Stockholm/Freqs_and_PLSDA", plotName, "_sPLSDA_", j, "_stripped.pdf"), 
+    ggsave(paste0("Results/Graphics/Oxford_and_Stockholm/Freqs_and_PLSDA/", plotName, "_sPLSDA_", j, "_stripped.pdf"), 
            width = 5, height = 5)
     
   }

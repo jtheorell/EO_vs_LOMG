@@ -12,7 +12,7 @@ popVec <- c("B", "CD4T", "CD8T", "TCRgd", "NK")
 patSCE$oxNeighClust <- NA
 for(i in popVec){
     print(i)
-    locDat <- readRDS(paste0("Results/Data/Oxford_and_Stockholm/Harmonisation/", i, "_Stockholm_data_with_Ox_neighbors.rds"))
+    locDat <- readRDS(paste0("../External/Oxford_and_Stockholm/Harmonisation/", i, "_Stockholm_data_with_Ox_neighbors.rds"))
     if(i == "TCRgd"){
         locRows <- which(patSCE$cellType == "gdT")
     } else {

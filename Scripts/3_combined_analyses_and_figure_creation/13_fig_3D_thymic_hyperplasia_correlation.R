@@ -32,17 +32,13 @@ corTestList <- lapply(row.names(signPops), function(x){
 names(corTestList) <- row.names(signPops)
 
 round(unlist(lapply(corTestList, function(x) x$p.value)), 3)
-#B_LOMGlow_2 CD4T_EOMGlow_3 CD8T_LOMGlow_2   NK_EOMGlow_1   NK_EOMGlow_2 
-#0.309          0.400          0.201          0.018          0.022 
-#NK_EOMGlow_3 
-#0.032
+#B_LOMGlow_2 CD4T_EOMGlow_3 CD8T_LOMGlow_2   NK_EOMGlow_1 
+#0.313          0.398          0.200          0.022
 
 round(unlist(lapply(corTestList, function(x) x$estimate)), 3)
 
 #   B_LOMGlow_2.cor CD4T_EOMGlow_3.cor CD8T_LOMGlow_2.cor   NK_EOMGlow_1.cor 
-#            -0.321              0.268              0.398             -0.665 
-#  NK_EOMGlow_2.cor   NK_EOMGlow_3.cor 
-#            -0.652             -0.618 
+#            -0.319              0.269              0.398             -0.649
 
 #So there is a considerable negative correlation between the size of the NK 
 #populations and the grade of hyperplasia. 
@@ -65,16 +61,12 @@ corTestListThy <- lapply(row.names(signPops), function(x){
 names(corTestListThy) <- row.names(signPops)
 
 round(unlist(lapply(corTestListThy, function(x) x$p.value)), 3)
-#B_LOMGlow_2 CD4T_EOMGlow_3 CD8T_LOMGlow_2   NK_EOMGlow_1   NK_EOMGlow_2 
-#0.245          0.102          0.491          0.009          0.035 
-#NK_EOMGlow_3 
-#0.098 
+#   B_LOMGlow_2 CD4T_EOMGlow_3 CD8T_LOMGlow_2   NK_EOMGlow_1 
+#         0.243          0.101          0.484          0.024
 
 round(unlist(lapply(corTestListThy, function(x) x$estimate)), 3)
 #   B_LOMGlow_2.cor CD4T_EOMGlow_3.cor CD8T_LOMGlow_2.cor   NK_EOMGlow_1.cor 
-#             0.432              0.579              0.265             -0.804 
-#  NK_EOMGlow_2.cor   NK_EOMGlow_3.cor 
-#            -0.703             -0.586
+#             0.434              0.581              0.269             -0.736 
 
 plot(freqTabThySamps$NK_EOMGlow_1, freqTabThySamps$hyperNumeric)
 
@@ -90,15 +82,5 @@ ggplot(freqTabThySamps, aes(x = NK_EOMGlow_1, y = hyperNumeric)) +
   geom_point(size = 4) + theme_bw()
 ggsave("Results/Graphics/Oxford/Thymus/NK_EOMGlow_1_in_thymus_hyperplasia_correlation.pdf",
        width = 2.5, height = 5)
-
-#...we also have to run a pls analysis
-library(mixOmics)
-plsDat <- freqTabThy[,which(colnames(freqTabThy) %in% row.names(signPops)[grep("EOMG", row.names(signPops))])]
-plsRes <- pls(plsDat, freqTabThy$hyperNumeric, ncomp = 1)
-
-plot(plsRes$variates$X, freqTabThy$hyperNumeric)
-cor(plsRes$variates$X, freqTabThy$hyperNumeric)
-#0.6763283
-#No point making it this much more complicated. 
 
 

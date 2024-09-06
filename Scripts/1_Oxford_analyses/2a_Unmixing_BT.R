@@ -33,4 +33,7 @@ for(i in fileList){
                             gsub("../External/Oxford/FCS/Raw/B_T_panel/", "", i)))
 }
 
+#These unmixed files are uploaded to FlowRepository, in the directory:  
+#http://flowrepository.org/experiments/8408
+
 

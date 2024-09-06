@@ -1,0 +1,6 @@
+Term,Library,p-value,q-value,z-score,combined score
+decreased B cell proliferation MP:0005093,MGI_Mammalian_Phenotype_Level_4_2021,5.5114e-9,0.0000056823,18.89,359.2
+abnormal humoral immune response MP:0001800,MGI_Mammalian_Phenotype_Level_4_2021,8.0847e-8,0.000041677,13.44,219.5
+abnormal T cell physiology MP:0002444,MGI_Mammalian_Phenotype_Level_4_2021,3.0707e-7,0.0001055,11.35,170.1
+increased T cell proliferation MP:0005348,MGI_Mammalian_Phenotype_Level_4_2021,9.1683e-7,0.0002363,12.01,167
+decreased single-positive T cell number MP:0008083,MGI_Mammalian_Phenotype_Level_4_2021,0.0000029387,0.000606,17.41,221.8

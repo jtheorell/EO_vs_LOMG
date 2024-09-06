@@ -123,7 +123,7 @@ saveRDS(edgerOutcomes, "Results/Data/Stockholm/EdgeR_significant_transcriptomes.
 range(unlist(lapply(edgerOutcomes, function(x){
     length(which(abs(x$logFC) > 1))
 })))
-#64 802
+#42 802
 
 #Now, we create a big one based on this, only collecting the logFC data for all above logFC 1.
 
@@ -131,7 +131,7 @@ allUsedGeneNames <- unique(unlist(lapply(edgerOutcomes, function(x){
     row.names(x)[which(abs(x$logFC) > 1)]
 } )))
 
-length(allUsedGeneNames) #2475
+length(allUsedGeneNames) #1784
 
 allUsedGeneNamesOrdered <- allUsedGeneNames[order(allUsedGeneNames)]
 

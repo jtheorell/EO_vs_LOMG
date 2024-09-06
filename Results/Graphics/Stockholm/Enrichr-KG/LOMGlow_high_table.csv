@@ -1,0 +1,6 @@
+Term,Library,p-value,q-value,z-score,combined score
+increased hepatocyte apoptosis MP:0003887,MGI_Mammalian_Phenotype_Level_4_2021,0.0005102,0.06581,71.35,540.9
+abnormal pancreatic delta cell morphology MP:0005218,MGI_Mammalian_Phenotype_Level_4_2021,0.004492,0.06865,285.4,1543
+liver cirrhosis MP:0003046,MGI_Mammalian_Phenotype_Level_4_2021,0.004492,0.06865,285.4,1543
+intestinal hemorrhage MP:0031154,MGI_Mammalian_Phenotype_Level_4_2021,0.005239,0.06865,237.8,1249
+increased pancreatic beta cell apoptosis MP:0014117,MGI_Mammalian_Phenotype_Level_4_2021,0.005239,0.06865,237.8,1249
