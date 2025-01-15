@@ -39,8 +39,6 @@ barcode.names = read.delim(barcode.path,
 colnames(raw_mat) = barcode.names$V1
 rownames(raw_mat) = feature.names$V1
 
-#So now step one is to kill off the empty barcodes, before we start loading anything
-#else onto here. 
 sce.pbmc <- SingleCellExperiment(assays = list(counts =raw_mat))
 
 #Here, we add meta../External/Stockholm/Data for the genes.

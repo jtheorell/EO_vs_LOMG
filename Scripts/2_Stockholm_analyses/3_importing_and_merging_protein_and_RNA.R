@@ -29,17 +29,20 @@ nColList <- list(ncol(read_csv("../External/Stockholm/Data/Anndata_input/adt_cou
 colNamesForAll <- row.names(read.csv("../External/Stockholm/Data/Anndata_input/adt_counts_common.csv", row.names = 1))
 
 protDatList <- lapply(1:2, function(i){
-    averageProtData <- do.call("rbind", lapply(seq_along(protNameList[[i]]), function(x){
-        print(x)
-        locRes <- rowMeans(do.call("cbind", lapply(modelNameList[[i]], function(y){
-            #Here, we have to remove the first column, as it contains the rownames
-            #which are not supported as a separate entity in read_csv
-            locDat <- read_csv(y, col_select = 2:nColList[[i]])[,x]
-        })))
-    }))
-    rownames(averageProtData) <- protNameList[[i]]
-    colnames(averageProtData) <- colNamesForAll
-    averageProtData
+  #Here, we have to remove the first column, as it contains the rownames
+  #which are not supported as a separate entity in read_csv
+  sumDat <- read_csv(modelNameList[[i]][[1]], col_select = 2:nColList[[i]],
+                     show_col_types = FALSE)
+  for(j in 2:length(modelNameList[[i]])){
+    locDir <- modelNameList[[i]][[j]]
+    locDat <- read_csv(locDir, col_select = 2:nColList[[i]],
+                       show_col_types = FALSE)
+    sumDat <- sumDat+locDat
+  }
+  averageProtData <- t(sumDat)/length(modelNameList[[i]])
+  rownames(averageProtData) <- protNameList[[i]]
+  colnames(averageProtData) <- colNamesForAll
+  averageProtData
 })
 
 #Now, these are saved.  

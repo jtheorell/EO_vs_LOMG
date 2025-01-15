@@ -10,17 +10,41 @@ library(SingleCellExperiment)
 library(DepecheR)
 library(FNN)
 library(SingleR)
+library(viridis)
+library(BiocParallel)
 fullSce <- readRDS("../External/Stockholm/Data/SCE_versions/3_including_AIRR.rds")
 
 commonProts <- c("CD003_PROT", "CD004_PROT", "CD008_PROT", "CD011c_PROT", "CD016_PROT", 
                  "CD019_PROT", "CD056_PROT")
+
+#We start here by defining a color vector function that will be used downstream
+plasmaColors <- plasma(8)
+colorSwitch <- function(cellTypeVector){
+  sapply(cellTypeVector, switch, 
+         "B" = plasmaColors[1], 
+         "CD4T" = plasmaColors[6], 
+         "CD8T" = plasmaColors[2],
+         "DPT" = plasmaColors[8],
+         "DNT" = plasmaColors[8],
+         "gdT" = plasmaColors[5], 
+         "ILC" = plasmaColors[3], 
+         "NK" = plasmaColors[4],
+         "Myeloid" = plasmaColors[7],
+         "doublet" = "#333333",
+         "none" = "grey")
+}
+
 protDat <- as.data.frame(t(logcounts(altExp(fullSce)))[,commonProts])
 #We start with CD3 and CD19
 
 dir.create("Diagnostics/Stockholm/Euclidean_gating")
-pdf("Diagnostics/Stockholm/Euclidean_gating/1_CD3_vs_CD19.pdf", width = 5, height = 5)
-
-plot(protDat$CD003_PROT, protDat$CD019_PROT)
+png("Diagnostics/Stockholm/Euclidean_gating/1_CD3_vs_CD19.png", width = 300, height = 300)
+par(mar = c(0,0,0,0), lwd = 3)
+plot(protDat$CD003_PROT, protDat$CD019_PROT, 
+     col = "#00000055", 
+     xaxt = "n", yaxt = "n",
+     ann=FALSE,
+     pch = 19)
 segments(x0 = -10, 
          y0 = 0.6, 
          x1 = 0.6, 
@@ -51,8 +75,10 @@ cellType[which(cellType == "none" &
                     protDat$CD019_PROT > 0.6) |
                  (protDat$CD003_PROT < 0.75 &
                     protDat$CD019_PROT > 1))] <- "B"
+
+
 pdf("Diagnostics/Stockholm/Euclidean_gating/1_CD3_vs_CD19_gated.pdf", width = 5, height = 5)
-plot(protDat$CD003_PROT, protDat$CD019_PROT, col = dColorVector(cellType))
+plot(protDat$CD003_PROT, protDat$CD019_PROT, col = colorSwitch(cellType))
 segments(x0 = -10, 
          y0 = 0.6, 
          x1 = 0.6, 
@@ -78,8 +104,13 @@ dev.off()
 #Now, we go on with the non-doublet, non-B. 
 nonDoubNonB <- protDat[which(cellType == "none"),]
 
-pdf("Diagnostics/Stockholm/Euclidean_gating/2_CD3_vs_CD56.pdf", width = 5, height = 5)
-plot(nonDoubNonB$CD003_PROT, nonDoubNonB$CD056, col = "#00000055")
+png("Diagnostics/Stockholm/Euclidean_gating/2_CD3_vs_CD56.png", width = 300, height = 300)
+par(mar = c(0,0,0,0), lwd = 3)
+plot(nonDoubNonB$CD003_PROT, nonDoubNonB$CD056, 
+     col = "#00000055", 
+     xaxt = "n", yaxt = "n",
+     ann=FALSE,
+     pch = 19)
 segments(x0 = -5, 
          y0 = 0.3, 
          x1 = 0.4, 
@@ -96,7 +127,7 @@ cellType[which(cellType == "none" &
                  (protDat$CD003_PROT < 0.4 &
                     protDat$CD056_PROT > 0.3))] <- "NK"
 pdf("Diagnostics/Stockholm/Euclidean_gating/2_CD3_vs_CD56_gated.pdf", width = 5, height = 5)
-plot(protDat$CD003_PROT, protDat$CD056, col = paste0(substr(dColorVector(cellType), 1, 7), "55"))
+plot(protDat$CD003_PROT, protDat$CD056, col = colorSwitch(cellType))
 segments(x0 = -5, 
          y0 = 0.3, 
          x1 = 0.4, 
@@ -111,9 +142,15 @@ dev.off()
 
 #Now, myeloid
 nonDoubNonBNonNK <- protDat[which(cellType == "none"),]
+png("Diagnostics/Stockholm/Euclidean_gating/3a_CD3_vs_CD11c.png", width = 300, height = 300)
+par(mar = c(0,0,0,0), lwd = 3)
+plot(nonDoubNonBNonNK$CD003_PROT, 
+     nonDoubNonBNonNK$CD011c_PROT, 
+     col = "#00000055", 
+     xaxt = "n", yaxt = "n",
+     ann=FALSE,
+     pch = 19)
 
-pdf("Diagnostics/Stockholm/Euclidean_gating/3a_CD3_vs_CD11c.pdf", width = 5, height = 5)
-plot(nonDoubNonBNonNK$CD003_PROT, nonDoubNonBNonNK$CD011c_PROT, col = "#00000055")
 #Myeloid vs T
 segments(x0 = -5, 
          y0 = 1.8, 
@@ -138,8 +175,15 @@ segments(x0 = 1,
          col = "red")
 dev.off()
 
-pdf("Diagnostics/Stockholm/Euclidean_gating/3b_CD56_vs_CD11c.pdf", width = 5, height = 5)
-plot(nonDoubNonBNonNK$CD056_PROT, nonDoubNonBNonNK$CD011c_PROT, col = "#00000055")
+png("Diagnostics/Stockholm/Euclidean_gating/3b_CD56_vs_CD11c.png", width = 300, height = 300)
+par(mar = c(0,0,0,0), lwd = 3)
+plot(nonDoubNonBNonNK$CD056_PROT, 
+     nonDoubNonBNonNK$CD011c_PROT, 
+     col = "#00000055", 
+     xaxt = "n", yaxt = "n",
+     ann=FALSE,
+     pch = 19)
+
 #Myeloid vs NK
 segments(x0 = -0.5, 
          y0 = 1.8, 
@@ -163,7 +207,7 @@ cellType[which(cellType == "none" &
                  protDat$CD056_PROT < 0.15)] <- "Myeloid"
 
 pdf("Diagnostics/Stockholm/Euclidean_gating/3_CD3_vs_CD11c_gated.pdf", width = 5, height = 5)
-plot(protDat$CD003_PROT, protDat$CD011c, col = paste0(substr(dColorVector(cellType), 1, 7), "55"))
+plot(protDat$CD003_PROT, protDat$CD011c, col = colorSwitch(cellType))
 segments(x0 = -5, 
          y0 = 1.8, 
          x1 = 0.7, 
@@ -275,8 +319,13 @@ cellTypeIntermediate[nonNonePoss] <- fullNoneTVector[nonNonePoss]
 
 TDat <- protDat[which(cellTypeIntermediate == "T"),]
 
-pdf("Diagnostics/Stockholm/Euclidean_gating/4_CD4_vs_CD8_on_T.pdf", width = 5, height = 5)
-plot(TDat$CD004_PROT, TDat$CD008, col = "#00000055")
+png("Diagnostics/Stockholm/Euclidean_gating/4_CD4_vs_CD8_on_T.png", width = 300, height = 300)
+par(mar = c(0,0,0,0), lwd = 3)
+plot(TDat$CD004_PROT, TDat$CD008, 
+     col = "#00000055", 
+     xaxt = "n", yaxt = "n",
+     ann=FALSE,
+     pch = 19)
 #DN
 segments(x0 = -2, 
          y0 = 1, 
@@ -337,7 +386,9 @@ cellType[which(cellTypeIntermediate == "T" &
                  protDat$CD008_PROT > 3)] <- "DPT"
 
 #And now, we project these defined cell types on the umap. 
-dColorPlot(cellType, xYData = reducedDim(fullSce, "UMAP"), 
+plotCellType <- cellType
+plotCellType[which(plotCellType == "T")] <- "none"
+dColorPlot(plotCellType, xYData = reducedDim(fullSce, "UMAP"), colors = colorSwitch(plotCellType), 
            plotName = "Manually_defined_cells", plotDir = "Diagnostics/Stockholm/Euclidean_gating")
 
 table(cellType)
@@ -410,6 +461,7 @@ length(which(cellType == "gdT" & fullSce$TCR_productive))
 #0
 
 dColorPlot(cellType, xYData = reducedDim(fullSce, "UMAP"), 
+           colors = colorSwitch(cellType),
            plotName = "Cells_defined_by_Euclidean_gating", 
            plotDir = "Diagnostics/Stockholm/Euclidean_gating")
 
@@ -420,6 +472,17 @@ dDensityPlot(xYData = reducedDim(fullSce, "UMAP"), idsVector = cellType,
 fullSce$cellType <- cellType
 #Before saving, we also make one small correction: the cell name column is named X
 saveRDS(fullSce, "../External/Stockholm/Data/SCE_versions/4_including_cell_type.rds")
+
+#Later addition of new coldata to this file: 
+#fullSce <- readRDS("../External/Stockholm/Data/SCE_versions/4_including_cell_type.rds")
+#fullSceNewColData <- readRDS("../External/Stockholm/Data/SCE_versions/3_including_AIRR.rds")
+#identical(colnames(fullSce), colnames(fullSceNewColData)) #TRUE
+#identical(colData(fullSce), colData(fullSceNewColData)) #FALSE, as we had planned
+#newCols <- colData(fullSceNewColData)[,-which(colnames(colData(fullSceNewColData)) %in% colnames(colData(fullSce)))]
+#colData(fullSce) <- cbind(colData(fullSce), newCols)
+#saveRDS(fullSce, "../External/Stockholm/Data/SCE_versions/4_including_cell_type.rds")
+
+
 
 
 

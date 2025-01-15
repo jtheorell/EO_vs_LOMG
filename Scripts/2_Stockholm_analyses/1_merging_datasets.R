@@ -46,19 +46,16 @@ geneSums<- rowSums(counts(rawPatSCECommonOrdered))
 #[7] "sample"                "runId"                 "batch"    
 
 colnames(colData(rawCtrlSCECommonOrdered))
-#[1] "nGene"                       "nUMI"                       
-#[3] "orig.ident"                  "pctMT"                      
-#[5] "barcode_check"               "tenx_lane"                  
-#[7] "cohort"                      "batch"                      
-#[9] "hash_maxID"                  "hash_secondID"              
-#[11] "hash_margin"                 "hto_classification"         
-#[13] "hto_classification_global"   "hash_ID"                    
-#[15] "adjmfc.time"                 "DEMUXLET.RD.PASS"           
-#[17] "DEMUXLET.N.SNP"              "DMX_GLOBAL_BEST"            
-#[19] "DEMUXLET.BARCODE"            "sample"                     
-#[21] "sampleid"                    "joint_classification_global"
-#[23] "dmx_hto_match"               "timepoint" 
-#[25] "sum"
+# [1] "nGene"                       "nUMI"                        "orig.ident"                 
+# [4] "pctMT"                       "barcode_check"               "tenx_lane"                  
+# [7] "cohort"                      "batch"                       "hash_maxID"                 
+#[10] "hash_secondID"               "hash_margin"                 "hto_classification"         
+#[13] "hto_classification_global"   "hash_ID"                     "adjmfc.time"                
+#[16] "DEMUXLET.RD.PASS"            "DEMUXLET.N.SNP"              "DMX_GLOBAL_BEST"            
+#[19] "DEMUXLET.BARCODE"            "sample"                      "sampleid"                   
+#[22] "joint_classification_global" "dmx_hto_match"               "timepoint"                  
+#[25] "sum"                         "detected"                    "altexps_adt_sum"            
+#[28] "altexps_adt_detected"        "altexps_adt_percent"         "total"  
 #So it seems possible to sync these.
 
 colData(rawPatSCECommonOrdered) <- colData(rawPatSCECommonOrdered)[,c(1,7,9,5)]
@@ -138,9 +135,7 @@ colData(rawCtrlSCECommonOrdered) <- cbind(colData(rawCtrlSCECommonOrdered), dumm
 #CD152 (CTLA-4): shoudl be expressed on T-reg (here deined as CD3+CD4+CD25+) and
 #activated T cells (Here defined as CD3+CD69 or HLA-DR+), but correlates to nothing
 
-#CD183/CXCR3: signal is too weak. 
-#CD184/CXCR4: signal is too weak. 
-#CD197/CCR7: signal is too weak. 
+#CD183/CXCR3, CD184/CXCR4, CD197/CCR7: signal is too weak. 
 
 #CD206 (Mannose receptor, no expression on CD33+ cells, which it should be)
 
@@ -187,9 +182,9 @@ ctrlCounts <- ctrlCounts[-which(row.names(ctrlCounts) %in%
                                       "CD137_PROT",
                                       "CD138_PROT",
                                       "CD152_PROT", 
-                                      "CD183_PROT",
                                       "CD184_PROT", 
-                                      "CD197_PROT",
+                                      "CD184_PROT", 
+                                      "CD197_PROT", 
                                       "CD206_PROT",
                                       "CD223_PROT",
                                       "CD273_PROT",
@@ -305,20 +300,20 @@ dir.create("../External/Stockholm/Data/Anndata_input", recursive = TRUE)
 
 #We need to transpose the data to get this right in the AnnData format. 
 writeMM(t(allGexCounts), 
-        "../External/Data/Anndata_input/gex_counts.mtx")
+        "../External/Stockholm/Data/Anndata_input/gex_counts.mtx")
 write.csv(t(as.matrix(allAdtCounts)), 
-        "../External/Data/Anndata_input/adt_counts.csv")
+        "../External/Stockholm/Data/Anndata_input/adt_counts.csv")
 write.csv(gexRowData, 
-        "../External/Data/Anndata_input/geneData.csv")
+        "../External/Stockholm/Data/Anndata_input/geneData.csv")
 write.csv(allCellData, 
-          "../External/Data/Anndata_input/cellData.csv")
+          "../External/Stockholm/Data/Anndata_input/cellData.csv")
 
 #Here, we add another version of the ADT counts, that only includes the
 #common proteins, which will be used to generate the low-dimensional representation
 #used for the logistic regression analysis, all UMAPs and the normalised version of the
 #common proteins themselves. 
 
-allAdtCounts <- read.csv("../External/Data/Anndata_input/adt_counts.csv", 
+allAdtCounts <- read.csv("../External/Stockholm/Data/Anndata_input/adt_counts.csv", 
                          row.names = 1)
 allAdtCountsCommon <- allAdtCounts[,c("CD003_PROT",
                                       "CD004_PROT",
@@ -329,7 +324,7 @@ allAdtCountsCommon <- allAdtCounts[,c("CD003_PROT",
                                       "CD056_PROT")]
 
 write.csv(allAdtCountsCommon, 
-          "../External/Data/Anndata_input/adt_counts_common.csv")
+          "../External/Stockholm/Data/Anndata_input/adt_counts_common.csv")
 
 
 

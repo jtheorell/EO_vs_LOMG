@@ -9,6 +9,9 @@
 #The cells are importantly exported as channel values, as this corresponds to the
 #transformed values. 
 library(FNN)
+library(ggplot2)
+library(uwot)
+library(DepecheR)
 filenames <- list.files(path = "../External/Oxford/Exported_csv/ILC_NK_pre-gated", 
                         full.names = TRUE)
 
@@ -91,26 +94,151 @@ table(big_all_file$lymphCount, useNA = "always")
 #thymic samples, but we will have to live with that. We will use Euclidean
 #gates to make sure that we catch all the relevant cells. 
 testSamp <- sample(1:nrow(big_all_file), 10000)
-hist(big_all_file$NKG2A[testSamp], breaks = 50)
-abline(v = 300, col = "red")
-hist(big_all_file$NKG2C[testSamp], breaks = 50)
-abline(v = 200, col = "red")
-hist(big_all_file$CD127[testSamp], breaks = 50)
-abline(v = 500, col = "red")
+dir.create("Diagnostics/Oxford/Euclidean_gating")
+#Now, this is slightly cumbersome, but necessary, to create publication-quality plots
+#that make sense. 
+NKG2Adens <- density(big_all_file$NKG2A)
+ggNKG2A <- data.frame(x = NKG2Adens$x, y = NKG2Adens$y)
+ggNKG2A$threshold <- "ILC"
+ggNKG2A$threshold[which(ggNKG2A$x > 300)] <- "Non_defined"
 
+p <- ggplot(data = ggNKG2A, aes(x = x, ymin = 0, ymax = y, fill = threshold)) +
+  geom_ribbon() +
+  geom_line(aes(y = y)) +
+  geom_vline(xintercept = 300, color = 'black') + theme_bw()  + 
+  theme(legend.position = "none",
+        axis.text.x = element_blank(), 
+        axis.ticks.x = element_blank(), 
+        axis.text.y = element_blank(), 
+        axis.ticks.y = element_blank()) + ylab("") + xlab("") +
+  scale_x_continuous(expand = c(0,0)) +
+  scale_y_continuous(expand = c(0,0)) +
+  scale_fill_manual(values = c("orange", "grey"))
+p
+ggsave("Diagnostics/Oxford/Euclidean_gating/NKG2A.pdf", 
+       width = 5, height = 5)
+
+
+NKG2Cdens <- density(big_all_file$NKG2C)
+ggNKG2C <- data.frame(x = NKG2Cdens$x, y = NKG2Cdens$y)
+ggNKG2C$threshold <- "ILC"
+ggNKG2C$threshold[which(ggNKG2C$x > 200)] <- "Non_defined"
+
+p <- ggplot(data = ggNKG2C, aes(x = x, ymin = 0, ymax = y, fill = threshold)) +
+  geom_ribbon() +
+  geom_line(aes(y = y)) +
+  geom_vline(xintercept = 200, color = 'black') + theme_bw()  + 
+  theme(legend.position = "none",
+        axis.text.x = element_blank(), 
+        axis.ticks.x = element_blank(), 
+        axis.text.y = element_blank(), 
+        axis.ticks.y = element_blank()) + ylab("") + xlab("") +
+  scale_x_continuous(expand = c(0,0)) +
+  scale_y_continuous(expand = c(0,0)) +
+  scale_fill_manual(values = c("orange", "grey"))
+p
+ggsave("Diagnostics/Oxford/Euclidean_gating/NKG2C.pdf", 
+       width = 5, height = 5)
+
+CD127dens <- density(big_all_file$CD127)
+ggCD127 <- data.frame(x = CD127dens$x, y = CD127dens$y)
+ggCD127$threshold <- "ILC"
+ggCD127$threshold[which(ggCD127$x < 500)] <- "Non_defined"
+ggCD127$threshold[which(ggCD127$x < 300)] <- "Not_ILC_NK"
+
+p <- ggplot(data = ggCD127, aes(x = x, ymin = 0, ymax = y, fill = threshold)) +
+  geom_ribbon() +
+  geom_line(aes(y = y)) +
+  geom_vline(xintercept = 500, color = 'black') + theme_bw()  + 
+  theme(legend.position = "none",
+        axis.text.x = element_blank(), 
+        axis.ticks.x = element_blank(), 
+        axis.text.y = element_blank(), 
+        axis.ticks.y = element_blank()) + ylab("") + xlab("") +
+  geom_vline(xintercept = 300, color = 'black') +
+  scale_x_continuous(expand = c(0,0)) +
+  scale_y_continuous(expand = c(0,0)) +
+  scale_fill_manual(values = c("orange", "grey", "black"))
+p
+ggsave("Diagnostics/Oxford/Euclidean_gating/CD127.pdf", 
+       width = 5, height = 5)
 
 big_all_file$cellType <- NA
 big_all_file$cellType[which(big_all_file$NKG2A < 300 &
                               big_all_file$NKG2C < 200 &
                               big_all_file$CD127 > 500)] <- "ILC"
-hist(big_all_file$CD56[testSamp], breaks = 50)
-abline(v = 300, col = "red")
-hist(big_all_file$CD16[testSamp], breaks = 50)
-abline(v = 400, col = "red")
-hist(big_all_file$CD7[testSamp], breaks = 50)
-abline(v = 400, col = "red")
-hist(big_all_file$NKG2A[testSamp], breaks = 50)
-abline(v = 400, col = "red")
+
+CD56dens <- density(big_all_file$CD56)
+ggCD56 <- data.frame(x = CD56dens$x, y = CD56dens$y)
+ggCD56$threshold <- "CD56dim_NK"
+ggCD56$threshold[which(ggCD56$x < 300)] <- "Non_defined"
+ggCD56$threshold[which(ggCD56$x > 720)] <- "CD56bright_NK"
+ggCD56$threshold[which(ggCD56$x < 100)] <- "Not_ILC_NK"
+
+p <- ggplot(data = ggCD56, aes(x = x, ymin = 0, ymax = y, fill = threshold)) +
+  geom_ribbon() +
+  geom_line(aes(y = y)) +
+  geom_vline(xintercept = 300, color = 'black') + theme_bw()  + 
+  theme(legend.position = "none",
+        axis.text.x = element_blank(), 
+        axis.ticks.x = element_blank(), 
+        axis.text.y = element_blank(), 
+        axis.ticks.y = element_blank()) + ylab("") + xlab("") +
+  geom_vline(xintercept = 720, color = 'black') +
+  geom_vline(xintercept = 100, color = 'black') +
+  scale_x_continuous(expand = c(0,0)) +
+  scale_y_continuous(expand = c(0,0)) +
+  scale_fill_manual(values = c("#5a0000", "#B03F82", "grey", "black"))
+p
+ggsave("Diagnostics/Oxford/Euclidean_gating/CD56.pdf", 
+       width = 5, height = 5)
+
+CD16dens <- density(big_all_file$CD16)
+ggCD16 <- data.frame(x = CD16dens$x, y = CD16dens$y)
+ggCD16$threshold <- "CD56dim_NK"
+ggCD16$threshold[which(ggCD16$x < 400)] <- "Non_defined"
+ggCD16$threshold[which(ggCD16$x < 200)] <- "Not_ILC_NK"
+
+p <- ggplot(data = ggCD16, aes(x = x, ymin = 0, ymax = y, fill = threshold)) +
+  geom_ribbon() +
+  geom_line(aes(y = y)) +
+  geom_vline(xintercept = 400, color = 'black') + theme_bw() + 
+  theme(legend.position = "none",
+        axis.text.x = element_blank(), 
+        axis.ticks.x = element_blank(), 
+        axis.text.y = element_blank(), 
+        axis.ticks.y = element_blank()) + ylab("") + xlab("") +
+  geom_vline(xintercept = 200, color = 'black') +
+  scale_x_continuous(expand = c(0,0)) +
+  scale_y_continuous(expand = c(0,0)) +
+  scale_fill_manual(values = c("#B03F82", "grey", "black"))
+p
+ggsave("Diagnostics/Oxford/Euclidean_gating/CD16.pdf", 
+       width = 5, height = 5)
+
+CD7dens <- density(big_all_file$CD7)
+ggCD7 <- data.frame(x = CD7dens$x, y = CD7dens$y)
+ggCD7$threshold <- "NK"
+ggCD7$threshold[which(ggCD7$x < 400)] <- "Non_defined"
+ggCD7$threshold[which(ggCD7$x < 200)] <- "Not_ILC_NK"
+
+p <- ggplot(data = ggCD7, aes(x = x, ymin = 0, ymax = y, fill = threshold)) +
+  geom_ribbon() +
+  geom_line(aes(y = y)) +
+  geom_vline(xintercept = 400, color = 'black') + theme_bw() + 
+  theme(legend.position = "none",
+        axis.text.x = element_blank(), 
+        axis.ticks.x = element_blank(), 
+        axis.text.y = element_blank(), 
+        axis.ticks.y = element_blank()) + ylab("") + xlab("") +
+  geom_vline(xintercept = 200, color = 'black') +
+  scale_x_continuous(expand = c(0,0)) +
+  scale_y_continuous(expand = c(0,0)) +
+  scale_fill_manual(values = c("#B03F82", "grey", "black"))
+
+p
+ggsave("Diagnostics/Oxford/Euclidean_gating/CD7.pdf", 
+       width = 5, height = 5)
 
 #For the NK cells
 big_all_file$cellType[which(is.na(big_all_file$cellType) &
@@ -137,6 +265,27 @@ table(big_all_file$cellType, useNA = "always")
 #  CD56brightNK            ILC             NK Something_else           <NA> 
 #        175650          28990        6313495              5         154464 
 
+#This is now plotted on a umap. We will for 
+#this purpose use a reduced set of markers:
+modelDf <- big_all_file[,c("NKp30","HLADR","CD183","CD161",
+                           "CD16","CD34","CD56","CD8",
+                           "CD127","CD27","CD57","NKG2A",
+                           "CD2","NKG2C","CRTH2",
+                           "CD7","CD117","CD218a")]
+
+set.seed(98765)
+umapRows <- sample(1:nrow(modelDf), 100000)
+
+umapForNKILC <- umap(modelDf[umapRows,], pca = 10)
+saveRDS(umapForNKILC, "Diagnostics/Oxford/Euclidean_gating/NK_ILC_Umap.rds")
+
+umapCellTypes <- big_all_file$cellType[umapRows]
+umapCellTypes[which(is.na(umapCellTypes))] <- "Not_defined"
+dColorPlot(umapCellTypes, 
+           xYData = umapForNKILC, 
+           colors = c("#5a0000", "orange", "#B03F82", "grey"),
+           plotName = "Diagnostics/Oxford/Euclidean_gating/Pre_Euclidean_cell_populations")
+
 #Now, we will investigate the remaining cells, to make sure that that
 #fraction do not contain any obvious canditates for any of the cell types. 
 naFrac <- sample(which(is.na(big_all_file$cellType)), 10000)
@@ -150,13 +299,8 @@ plot(big_all_file$CD7[naFrac],
 #It does not seem that way. 
 
 #So, that means that it seems like we have a reasonably clean setup. Then
-#we will use these four gates to define the remaining cells. We will for 
-#this purpose use a reduced set of markers: 
-modelDf <- big_all_file[,c("NKp30","HLADR","CD183","CD161",
-                           "CD16","CD34","CD56","CD8",
-                           "CD127","CD27","CD57","NKG2A",
-                           "CD2","NKG2C","CRTH2",
-                           "CD7","CD117","CD218a")]
+#we will use these four gates to define the remaining cells. 
+
 
 #Now, we pre-cluster everything, to make things go a bit faster. 
 realCellTypes <- unique(big_all_file$cellType)
@@ -194,7 +338,7 @@ for(i in unique(cellIndexForEach)){
 }
 table(cellTypeForEach, useNA = "always")
 #There are no NA left. 
-length(unique(cellTypeForEach)) #177
+length(unique(cellTypeForEach)) #181
 
 #And with that, we are ready to collapse these back to the original groups
 cellTypeForEachCollapsed <- gsub("|_.+", "", cellTypeForEach)
@@ -286,6 +430,10 @@ table(big_all_file$cellType, useNA = "always")
 #        175664          62804        6422932          11204              0 
 
 #Beautiful. 
+dColorPlot(big_all_file$cellType[umapRows], 
+           xYData = umapForNKILC, 
+           colors = c("#5a0000", "orange", "#B03F82", "black"),
+           plotName = "Diagnostics/Oxford/Euclidean_gating/Post_Euclidean_cell_populations")
 
 #And with that, we are ready to save the file. 
 dir.create("../External/Oxford/Resulting_data/ILC_NK")

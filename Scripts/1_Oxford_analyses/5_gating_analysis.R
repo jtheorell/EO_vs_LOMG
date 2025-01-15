@@ -11,6 +11,11 @@ library(ggplot2)
 soriniBT <- read.csv("Data/Oxford/Gating/2024-08-23_BT_Sorini_analysis_JT_changes.csv", row.names = 1)
 ILCNK <- read.csv("Data/Oxford/Gating/240819_NK_ILC_cell_numbers.csv", row.names = 1)
 
+#In this version of the analysis, the PJor samples have been excluded, as 95% were
+#either dump+ or dead. 
+soriniBT <- soriniBT[-grep("PJor", soriniBT$Label),]
+ILCNK <- ILCNK[-grep("PJor", ILCNK$Label),]
+
 #Now, we calculate the fracage of lymphocytes for each individual frame separately
 #And then combine them.
 
@@ -40,18 +45,18 @@ fracOfLymphDf$Group <- unlist(lapply(fracOfLymphDf$Label, function(x){
 
 #We also make the change to the label of the 50-year old LOMG pat and we
 #introduce the two control groups here already
-fracOfLymphDf$Group[which(fracOfLymphDf$Group == "preLOMG")] <- "uncertain"
-fracOfLymphDf$Group[which(fracOfLymphDf$Age == 50)] <- "uncertain"
+fracOfLymphDf$Group[which(fracOfLymphDf$Group == "preLOMG")] <- "unclear"
+fracOfLymphDf$Group[which(fracOfLymphDf$Age == 50)] <- "unclear"
 fracOfLymphDf$Group[which(fracOfLymphDf$Group == "Ctrl" &
                             fracOfLymphDf$Age < 50)] <- "Young_ctrl"
 fracOfLymphDf$Group[which(fracOfLymphDf$Group == "Ctrl" &
                             fracOfLymphDf$Age > 50)] <- "Old_ctrl"
 table(fracOfLymphDf$Group, fracOfLymphDf$Tissue)
 #             post pre thy
-#  EOMG          3  13   7
+#  EOMG          2  12   7
 #  LOMG          0  16   1
 #  Old_ctrl      0  10   0
-#  uncertain     0   3   2
+#  unclear.      0   3   2
 #  Young_ctrl    0  10   0
 
 #This looks right. So now, lets run an sPLS-DA!
@@ -60,8 +65,8 @@ freqDfPat <- fracOfLymphDf[-grep("ctrl", fracOfLymphDf$Group),]
 
 freqDfPre <- freqDfPat [grep("pre", freqDfPat$Tissue),]
 
-nonPreLomg <- freqDfPre[-grep("uncertain", freqDfPre$Group),]
-preLomg <- freqDfPre[grep("uncertain", freqDfPre$Group),]
+nonPreLomg <- freqDfPre[-grep("unclear", freqDfPre$Group),]
+preLomg <- freqDfPre[grep("unclear", freqDfPre$Group),]
 
 metaDatCols <- which(colnames(nonPreLomg) %in% c("Tissue", colnames(metaData)))
 

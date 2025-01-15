@@ -7,6 +7,7 @@ library(harmony)
 library(gmodels)
 library(uwot)
 library(FNN)
+library(viridis)
 #Here, are the proteins of focus for each cell population. In this case, 
 #We will recombine the ILC and NK cells, as they are not separated in the original
 #file
@@ -37,6 +38,9 @@ markerList <- list("B" = c("CD38", "CCR7", "CD95", "CD45", "CCR4", "IgD",
                              "CRTH2", "CD7",
                              "CD117", "CD218a"))
 
+#How long is actually the list of unique markers? 
+length(unique(unlist(lapply(markerList, function(x) x))))
+#36. As CD3, CD11c and CD19 are not above, that means a total of 32+7 measured markers per dataset. 
 
 listOfPopVecs <- list("BT" = c("B", "CD4T", "CD8T", "TCRgd"),
                          "ILC_NK" = c("ILC", "NK"))
@@ -49,11 +53,11 @@ for(z in names(listOfPopVecs)){
   oxRef <- readRDS(paste0("../External/Oxford_and_Stockholm/Harmonisation/Ox_reference_", z, ".rds"))
   for(j in listOfPopVecs[[z]]){
     print(j)
-    locDat <- readRDS(paste0("../External/Oxford/Resulting_data/", j, "/", j, "_full_file_post_Euclid_including_subclusts.rds"))
+    allDat <- readRDS(paste0("../External/Oxford/Resulting_data/", j, "/", j, "_full_file_post_Euclid_including_subclusts.rds"))
     #We start by zooming in on the cells of relevance, i.e. the pre-thymectomy
     #PBMC samples from patients. 
-    locDat <- locDat[which(locDat$tissue == "pre" &
-                             locDat$group != "Ctrl"),]
+    locDat <- allDat[which(allDat$tissue == "pre" &
+                             allDat$group != "Ctrl"),]
     
     if(j == "B"){
       #We start by making one change here: the CD3 positive cells are turned negative
@@ -101,20 +105,20 @@ for(z in names(listOfPopVecs)){
     locDatScaled$Set <- "Ox"
     stockRefLoc$Set <- "Stock"
     locFullDat <- rbind(locDatScaled, stockRefLoc)
-    #
-    set.seed(111)
-    oxStockPCA <- fast.prcomp(locFullDat[,1:(ncol(locFullDat)-1)])$x
-    if(ncol(oxStockPCA) > 10){
-      oxStockPCA <- oxStockPCA[,1:10]
-    }
-    saveRDS(oxStockPCA, paste0("../External/Oxford_and_Stockholm/Harmonisation/", j, "_raw_PCA.rds"))
-    #oxStockPCA <- readRDS(paste0("../External/Oxford_and_Stockholm/Harmonisation/", j, "_raw_PCA.rds"))
     
-    set.seed(1010)
-    harmonyPCA <- 
-      RunHarmony(oxStockPCA, meta_data = locFullDat$Set)
-    saveRDS(harmonyPCA, paste0("../External/Oxford_and_Stockholm/Harmonisation/", j, "_harmony_PCA.rds"))
-    #harmonyPCA <- readRDS(paste0("../External/Oxford_and_Stockholm/Harmonisation/", j, "_harmony_PCA.rds"))
+    #set.seed(111)
+    #oxStockPCA <- fast.prcomp(locFullDat[,1:(ncol(locFullDat)-1)])$x
+    #if(ncol(oxStockPCA) > 10){
+    #  oxStockPCA <- oxStockPCA[,1:10]
+    #}
+    #saveRDS(oxStockPCA, paste0("../External/Oxford_and_Stockholm/Harmonisation/", j, "_raw_PCA.rds"))
+    oxStockPCA <- readRDS(paste0("../External/Oxford_and_Stockholm/Harmonisation/", j, "_raw_PCA.rds"))
+    
+    #set.seed(1010)
+    #harmonyPCA <- 
+    #  RunHarmony(oxStockPCA, meta_data = locFullDat$Set)
+    #saveRDS(harmonyPCA, paste0("../External/Oxford_and_Stockholm/Harmonisation/", j, "_harmony_PCA.rds"))
+    harmonyPCA <- readRDS(paste0("../External/Oxford_and_Stockholm/Harmonisation/", j, "_harmony_PCA.rds"))
     
     #And now comes the key thing - we identify the nearest neighbors for all
     #the Oxford datapoints in the Stockholm dataset.
@@ -127,61 +131,6 @@ for(z in names(listOfPopVecs)){
     Sys.time()-timing
     #This is now converted to the cell type distribution. 
     oxType <- oxHitVec[oxNeigh[,1]]
-    
-    #And now for the visuals
-    set.seed(11)
-    focOxRows <- sample(oxRows, length(stockRows))
-    umapRows <- c(focOxRows, stockRows)
-    rawUmap <- umap(oxStockPCA[umapRows,])
-    harmonyUmap <- umap(harmonyPCA[umapRows,])
-    
-    #We create two simplified plotting vectors here, where all EOMG and LOMG
-    #defining cells are given one colour each.
-    
-    plotEuclidSimpleList <- lapply(list(oxHitVec[focOxRows], oxType), function(x){
-      sapply(x, function(y){
-        if(grepl("None", y)){
-          "None"
-        } else if(grepl("EOMG", y)){
-          "EOMG"
-        } else {
-          "LOMG"
-        }
-      })
-    })
-    
-    plotSet <- locFullDat$Set[umapRows]
-    oxPlotRows <- which(plotSet == "Ox")
-    stockPlotRows <- which(plotSet == "Stock")
-    
-    dir.create(paste0("Results/Graphics/Oxford_and_Stockholm/Harmonisation/", j))
-    
-    dColorPlot(plotEuclidSimpleList[[1]], 
-               xYData = rawUmap[oxPlotRows,], 
-               colorScale = c("#FF0000", "#0000FF", "#FFC149"),
-               plotName = paste0("Results/Graphics/Oxford_and_Stockholm/Harmonisation/", j, "/", j, "_1_Oxford_umap_pre_harmony"))
-    
-    dColorPlot(c(plotEuclidSimpleList[[1]], rep("None_Stock", length(plotEuclidSimpleList[[1]]))), 
-               xYData = rawUmap, 
-               colorScale = c("#FF0000", "#0000FF", "#FFC149", "#AF8B8B"),
-               plotName = paste0("Results/Graphics/Oxford_and_Stockholm/Harmonisation/", j, "/", j, "_2_Oxford_and_Stockholm_umap_pre_harmony"))
-    
-    dColorPlot(c(plotEuclidSimpleList[[1]], rep("None_Stock", length(plotEuclidSimpleList[[1]]))), 
-               xYData = harmonyUmap, 
-               colorScale = c("#FF0000", "#0000FF", "#FFC149", "#AF8B8B"),
-               plotName = paste0("Results/Graphics/Oxford_and_Stockholm/Harmonisation/", j, "/", j, "_3_Oxford_and_Stockholm_umap_harmony"))
-    
-    plotEuclidSimpleList[[2]][which(plotEuclidSimpleList[[2]] == "None")] <- "None_Stock"
-    
-    dColorPlot(c(plotEuclidSimpleList[[1]], plotEuclidSimpleList[[2]]), 
-               xYData = harmonyUmap, 
-               colorScale = c("#FF0000", "#0000FF", "#FFC149", "#AF8B8B"),
-               plotName = paste0("Results/Graphics/Oxford_and_Stockholm/Harmonisation/", j, "/", j, "_4_Oxford_and_Stockholm_umap_harmony_hits_also_on_Stock"))
-    
-    dColorPlot(c(plotEuclidSimpleList[[1]], plotEuclidSimpleList[[2]]), 
-               xYData = rawUmap, 
-               colorScale = c("#FF0000", "#0000FF", "#FFC149", "#AF8B8B"),
-               plotName = paste0("Results/Graphics/Oxford_and_Stockholm/Harmonisation/", j, "/", j, "_5_Stockholm_umap_pre_harmony"))
     
     #And this is now saved. 
     neighborised_Stock <- cbind(stockRef[stockRefRows,], "Ox_neigh" = oxNeigh[,1],

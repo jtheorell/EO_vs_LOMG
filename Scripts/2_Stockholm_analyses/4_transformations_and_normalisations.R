@@ -6,6 +6,8 @@ library(scran)
 library(bluster)
 library(DepecheR)
 library(ggplot2)
+library(flowSpecs)
+library(flowCore)
 library(ggpubr)
 fullSce <- readRDS("../External/Stockholm/Data/SCE_versions/1_full_SCE.rds")
 
@@ -51,8 +53,10 @@ adtCountsFull <- asinh(adtCounts/50)
 adtCountsCtrl <- adtCountsFull[ctrlRows,]
 
 oneVsAllPlot(flowFrame(as.matrix(adtCountsCtrl)), 
-             dirName = "Diagnostics/Estimation_controls/All_vs_all_plots_before_totalVi")
+             dirName = "Diagnostics/Stockholm/Estimation_controls/All_vs_all_plots_before_totalVi")
 
+#In an other analysis (sheet 4b), the differences here are quantified and visualised
+#more directly. 
 #This sadly shows that there is a lot of spuriosity going on. We will therefore 
 #need to go about this in a flow-cytometry-associated way, by introducing a correction
 #matrix. We will optimise this square matrix with a diagonal of 1s, so that the
@@ -118,7 +122,11 @@ oneVsAllPlot(flowFrame(transformed_x),
              dirName = "Diagnostics/Estimation_controls/All_vs_all_plots_after_totalVi_after_lin_corr")
 
 #This works like a charm. Now, we will save this matrix. 
-write.csv(corMatFinal, "Data/Correction_matrix_least_squares_1000_bootstraps.csv")
+dir.create("Data/Stockholm/totalVI_protein_corrections")
+write.csv(corMatFinal, "Data/Stockholm/totalVI_protein_corrections/Correction_matrix_least_squares_1000_bootstraps.csv")
+#corMatFinal <- 
+#  as.matrix(read.csv("Data/Stockholm/totalVI_protein_corrections/Correction_matrix_least_squares_1000_bootstraps.csv", 
+#                     row.names = 1))
 
 #So with that, we will add this back to the data
 datRes <- t(normcounts(altExp(fullSce)))%*%corMatFinal
@@ -145,9 +153,6 @@ dColorPlot(datResNoNA, xYData = reducedDim(fullSce, "UMAP"),
 #We will for this purpose import the original protein expression data.
 #We will for this analysis perform separate analyses for the patient and the
 #control data. 
-adtCountsFull
-datRes
-
 
 rawProtDatPat <- adtCountsFull[which(fullSce$group == "Pat"),]
 patColSums <- colSums(as.matrix(rawProtDatPat))
@@ -430,5 +435,11 @@ assays(altExp(fullSce)) #counts normcounts logcounts
 #So here we are, transformed and ready for the coming steps. 
 #And here, the full dataset is saved
 saveRDS(fullSce, "../External/Stockholm/Data/SCE_versions/2_normalised_SCE_with_full_protein.rds")
+
+#And we also save the three datasets for visualisation purposes
+write.csv(adtCountsCtrl, "Data/Stockholm/totalVI_protein_corrections/adtCountsCtrl.csv")
+write.csv(normAdtCountsCtrl, "Data/Stockholm/totalVI_protein_corrections/normAdtCountsCtrl.csv")
+write.csv(transformed_x, "Data/Stockholm/totalVI_protein_corrections/transformed_x.csv")
+
 
 

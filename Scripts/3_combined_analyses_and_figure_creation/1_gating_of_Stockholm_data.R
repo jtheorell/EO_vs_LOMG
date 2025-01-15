@@ -10,28 +10,29 @@ protDf <- as.data.frame(t(logcounts(sthlmProtDat)))
 pResLow <- read.csv("Results/Data/Oxford/Gating/Interesting_gated_populations_p_vals_Oxford.csv",
                     row.names = 1)
 
-#We start with the B-cells, where we look for these populatsions: 
-#B_IgDposCD27negCD24posCD38posTrans
-#B_IgDnegCD27neg  
-BDf <- protDf[which(sthlmProtDat$cellType == "B"),]
-plot(BDf$IgD_PROT, BDf$CD027_PROT)
-abline(v = 0.5)
-abline(h = 0.6)
-B_IgDnegCD27neg_Counts <- sthlmProtDat$sample[which(sthlmProtDat$cellType == "B" &
-                                                 protDf$IgD_PROT < 0.5 &
-                                                 protDf$CD027_PROT < 0.6)]
-                   
+##We start with the B-cells, where we look for these populatsions: 
+##B_IgDposCD27negCD24posCD38posTrans
+##B_IgDnegCD27neg  
+#BDf <- protDf[which(sthlmProtDat$cellType == "B"),]
+#plot(BDf$IgD_PROT, BDf$CD027_PROT)
+#abline(v = 0.5)
+#abline(h = 0.6)
+#B_IgDnegCD27neg_Counts <- sthlmProtDat$sample[which(sthlmProtDat$cellType == "B" &
+#                                                 protDf$IgD_PROT < 0.5 &
+#                                                 protDf$CD027_PROT < 0.6)]
+#                   
+#
+#plot(BDf$CD024_PROT, BDf$CD038_PROT)
+#abline(v = 0.34)
+#abline(h = 2)
+#B_IgDposCD27negCD24posCD38posTrans_Counts <- 
+#  sthlmProtDat$sample[which(sthlmProtDat$cellType == "B" &
+#                                    protDf$IgD_PROT >= 0.5 &
+#                                    protDf$CD027_PROT < 0.6 &
+#                                    protDf$CD024_PROT > 0.35 &
+#                                    protDf$CD038_PROT > 2)]
 
-plot(BDf$CD024_PROT, BDf$CD038_PROT)
-abline(v = 0.34)
-abline(h = 2)
-B_IgDposCD27negCD24posCD38posTrans_Counts <- 
-  sthlmProtDat$sample[which(sthlmProtDat$cellType == "B" &
-                                    protDf$IgD_PROT >= 0.5 &
-                                    protDf$CD027_PROT < 0.6 &
-                                    protDf$CD024_PROT > 0.35 &
-                                    protDf$CD038_PROT > 2)]
-                   
+                 
 #Now CD4. 
 #CD4T_naive_CD25                             
 #CD4T_EM_CD161  
@@ -292,10 +293,8 @@ colnames(pRes) <- "eomgLomgP"
 #Now, we zoom in on the ones that survive: 
 pResLowStock <- pRes[which(pRes[,1] < 0.05),]
 pResLowStock
-#     CD8T_naive  CD8T_naive_CD7 CD8T_naive_CD27 CD8T_naive_CD31 CD8T_naive_CD38 
-#     0.03060732      0.03060732      0.03060732      0.02269396      0.01162696 
-#  CD8T_EM_CD161 
-#     0.01193422
+#     CD8T_naive  CD8T_naive_CD7 CD8T_naive_CD27 CD8T_naive_CD31 CD8T_naive_CD38    CD8T_CM_CCR4   CD8T_EM_CD161 
+#     0.03060732      0.03060732      0.03060732      0.02269396      0.01162696      0.01193422      0.01193422 
 
 dir.create("Results/Data/Oxford_and_Stockholm/Gating")
 #These are saved. 

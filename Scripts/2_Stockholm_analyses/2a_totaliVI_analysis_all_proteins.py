@@ -2,6 +2,8 @@
 #https://docs.scvi-tools.org/en/stable/tutorials/notebooks/multimodal/cite_scrna_integration_w_totalVI.html
 #This relates to the totalVI publication: https://pubmed.ncbi.nlm.nih.gov/33589839/
 
+#If the packages are not being installed, it is needed to make specific installations with the current python version. Right 
+#now the command is '/Users/jakob.theorell/.pyenv/versions/3.9.13/bin/python3.9 -m pip install scvi-tools', e.g.
 python3
 
 import tempfile
@@ -43,7 +45,7 @@ scvi.model.TOTALVI.setup_anndata(
 
 model = scvi.model.TOTALVI(adata_myakot, latent_distribution="normal", n_layers_decoder=2)
 
-model.train(use_gpu = False, max_epochs = 200)
+model.train( max_epochs = 200)
 
 #These are saved for now, code-wise, but the data is not, as it is the average of the normalised models that we will use. 
 x_totalVi = pd.DataFrame(model.get_latent_representation())

@@ -39,9 +39,10 @@ write.table(changeoClusteringFile, "../External/Stockholm/Data/TCR_dbs/1_changeo
 
 #Now, we re-import these. 
 hamClones <- read.table("../External/Stockholm/Data/TCR_dbs/2_changeoClusteringFile_Ham_result.tsv", header = TRUE)
+cellId <- gsub("../External/Data/Immcantation_output_TCR/VDJ_21_0", "", hamClones$CELL_ID)
 library(BiocParallel)
 fullTCR$HamClone <- unlist(bplapply(fullTCR$cell_id, function(x){
-    locVal <- hamClones$CLONE[which(hamClones$CELL_ID == x)][1]
+    locVal <- hamClones$CLONE[which(cellId == x)][1]
 }))
 
 tcrB <- fullTCR[which(fullTCR$locus == "TRB"),]
@@ -151,7 +152,7 @@ dual <- as.data.frame(do.call("rbind", bplapply(unique(fullTCR$cell_id), functio
     }
 })))
 
-table(dual)
+table(dual$dual)
 #FALSE  TRUE 
 #29789  3755
 
@@ -179,7 +180,7 @@ multiplet <- as.data.frame(do.call("rbind", bplapply(unique(fullTCR$cell_id), fu
     }
 })))
 
-table(multiplet)
+table(multiplet$multiplet)
 #FALSE 
 #33544
 
@@ -210,6 +211,17 @@ fullTCR$complete <- unlist(bplapply(seq_len(nrow(fullTCR)), function(x){
         FALSE
     }
 }))
+
+#Now, we are also going to integrate information about the MAIT chains, as they
+#turn out to be essential here.
+fullTCR$Japha33 <- FALSE
+fullTCR$Japha33[grep("TRAJ33", fullTCR$j_call)] <- TRUE
+fullTCR$Vapha7.2 <- FALSE
+fullTCR$Vapha7.2[grep("TRAV1-2", fullTCR$v_call)] <- TRUE
+fullTCR$Vbeta13 <- FALSE
+fullTCR$Vbeta13[grep("TRBV6", fullTCR$v_call)] <- TRUE
+fullTCR$Vbeta2 <- FALSE
+fullTCR$Vbeta2[grep("TRBV20", fullTCR$v_call)] <- TRUE
 
 #These are exported
 write.csv(fullTCR, "../External/Stockholm/Data/TCR_DBs/3_clonal_TCR_db.csv", 

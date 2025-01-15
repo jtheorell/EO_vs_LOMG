@@ -55,22 +55,17 @@ rownames(namedSce) <- rowData(namedSce)$hgnc_symbol
 
 patGroups <- c("EOMG", "LOMG")
 set.seed(110)
-edgerOutcomes <- bplapply(runVec, function(x){
+edgerOutcomesFull <- bplapply(runVec, function(x){
     print(x)
-    if(grepl("TCRgd", x)){
-        locMother == "gdT"
-    } else {
-        locMother <- gsub("|_.OMG.+_.", "\\1", x)
-    }
     
-    signGroup <- gsub("|_.$", "\\1", x)
+    locMother <- gsub("|_.OMGlow_.", "\\1", x)
     #Now, we compare the specific cluster to all the other cells within the 
-    #mother cluster, apart from the clusters significant from the same patient
-    #group and regulated in the same direction. 
+    #mother cluster. 
     locDaughterCols <- which(logSCE$oxNeighClust == x)
+    print(length(locDaughterCols))
     
     locOtherCols <- which(logSCE$cellType == locMother &
-                              (grepl(signGroup, logSCE$oxNeighClust) == FALSE))
+                            logSCE$oxNeighClust != x)
     #Here, we reduce the data if it is unnecessarily extensive
     if(length(locOtherCols) > 5000){
         locOtherCols <- sample(locOtherCols, 5000)
@@ -78,17 +73,16 @@ edgerOutcomes <- bplapply(runVec, function(x){
     
     locClusterCols <- c(locDaughterCols, locOtherCols)
     
-    discriminantFull <- rep(paste0(1, "_other"), ncol(logSCE))
+    hitClustFull <- rep(FALSE, ncol(logSCE))
     
-    discriminantFull[locDaughterCols] <- paste0(2, "_", x)
-    discriminant <- discriminantFull[locClusterCols]
+    hitClustFull[locDaughterCols] <- TRUE
+    hitClust <- hitClustFull[locClusterCols]
     
     locSCE <- namedSce[,locClusterCols]
-    locSCE$discriminant <- discriminant
-    #Here, we are identrifying the normalised counts as counts, to satisfy the software. 
-    #but we will not ruin things by doubly transforming the data below. 
+    locSCE$hitClust <- hitClust
+ 
     current <- aggregateAcrossCells(locSCE, 
-                                    ids=colData(locSCE)[,c("sample", "discriminant")])
+                                    ids=colData(locSCE)[,c("sample", "hitClust")])
     
     # Creating up a DGEList object for use in edgeR:
     y <- DGEList(counts(current), samples=colData(current))
@@ -97,33 +91,73 @@ edgerOutcomes <- bplapply(runVec, function(x){
     discarded <- current$ncells < 10
     y <- y[,!discarded]
     
-    y <- calcNormFactors(y)
-    design <- model.matrix(~factor(discriminant), y$samples)
+    #Here, we need to be clever. In normal instances, there is often a reasonable
+    #balance in cell number between the compared groups. In this case, however, 
+    #the cells we are interested in are very, very much fewer. Therefore, we
+    #cannot use the same criteria to define which genes that are of interest for
+    #both groups. Instead, we will select genes that are either massively expressed
+    #by the large cluster, or reasonably expressed by ours. 
+    yFoc <- y[,y$samples$hitClust]
     
-    keep <- filterByExpr(y, design = design)
+    keep <- suppressWarnings(filterByExpr(yFoc,min.count = 10, 
+                         min.total.count = 15, large.n = 20))
+    
+    yOther <- y[,which(y$samples$hitClust==FALSE)]
+    
+    keep2 <- suppressWarnings(filterByExpr(yOther,min.count = 100, 
+                         min.total.count = 150, large.n = 20))
+    keep[keep2] <- TRUE
+    
+    print(length(which(keep)))
     y <- y[keep,]
+    
+    y <- calcNormFactors(y, method = "upperquartile")
+    
+    design <- model.matrix(~factor(hitClust), y$samples)
+    
     
     y <- estimateDisp(y, design)
     fit <- glmQLFit(y, design, robust=TRUE)
-    res <- glmQLFTest(fit, coef=ncol(design))$table
+    res <- glmQLFTest(fit, coef=ncol(design))
     
-    #Now, we pick out all the ones that are significantly upregulated. 
-    resSigEdgeR <- res[which(res$PValue < 0.05),]
+    #Now, we pick out all the ones that are significantly upregulated. If there
+    #are none, which is the case for the CD4T, that have too few cells, we will
+    #take the top 10
+    topRes <- topTags(res, n = nrow(res), p.value = 0.05)
+    resSigEdgeR <- topRes@.Data[[1]]
     
     #And these are ordered according to their fold change
     resSigEdgeROrd <- resSigEdgeR[order(abs(resSigEdgeR$logFC), decreasing = TRUE),]
+    #Now, these are listed
+    list("Full_result" = res$table,
+         "Sign_result" = resSigEdgeROrd)
     
 })
-names(edgerOutcomes) <- runVec
 dir.create("Results/Data/Stockholm")
+edgerOutcomes <- lapply(edgerOutcomesFull, "[[", 2)
+names(edgerOutcomes) <- runVec
 saveRDS(edgerOutcomes, "Results/Data/Stockholm/EdgeR_significant_transcriptomes.rds")
+
+#We also save this as a csv for use in the publication. 
+
+edgerOutcomesFlat <- do.call("rbind", lapply(names(edgerOutcomes), function(x){
+  locDat <- edgerOutcomes[[x]]
+  locDat$Population <- x
+  locDat
+}))
+write.csv(edgerOutcomesFlat, "Results/Data/Stockholm/EdgeR_significant_transcriptomes.csv")
+
+edgerOutcomesNoFilter <- lapply(edgerOutcomesFull, "[[", 1)
+names(edgerOutcomesNoFilter) <- runVec
+saveRDS(edgerOutcomesNoFilter, "Results/Data/Stockholm/EdgeR_all_transcriptomes.rds")
+
 #Now, we will create a considerably reduced set for plotting, where we show
 #only the ones with a logFC above 1. 
 
 range(unlist(lapply(edgerOutcomes, function(x){
     length(which(abs(x$logFC) > 1))
 })))
-#42 802
+#1 86
 
 #Now, we create a big one based on this, only collecting the logFC data for all above logFC 1.
 
@@ -131,7 +165,7 @@ allUsedGeneNames <- unique(unlist(lapply(edgerOutcomes, function(x){
     row.names(x)[which(abs(x$logFC) > 1)]
 } )))
 
-length(allUsedGeneNames) #1784
+length(allUsedGeneNames) #133
 
 allUsedGeneNamesOrdered <- allUsedGeneNames[order(allUsedGeneNames)]
 

@@ -62,7 +62,7 @@ tcrCols <- c("cell_id", "productive",
              "complete", "HamClone", 
              "Clonal", "intraClonalDistance",
              "intraClonalDistanceTCRA",
-              "vFamB", "dual")
+              "vFamB", "dual", "Vapha7.2", "Japha33", "Vbeta13", "Vbeta2")
 
 colDatTCR <- tcrDb[,which(colnames(tcrDb) 
                           %in% tcrCols)]

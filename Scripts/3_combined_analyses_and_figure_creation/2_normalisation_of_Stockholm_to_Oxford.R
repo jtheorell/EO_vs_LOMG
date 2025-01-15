@@ -43,7 +43,7 @@ protChangeValList <- list("BT" = c("CD2" = 0.5, "CD7" = 10,
                             "CD27" = 3, "CD38" = 30, "IgD" = 1))
 overarchGroups <- list("BT","ILC_NK")
 for(z in overarchGroups){
-  loc_file <- readRDS(paste0("Results/Data/", z, "_all/", z, "_all_full_file.rds"))
+  loc_file <- readRDS(paste0("../External/Oxford/Resulting_data/", z, "_all/", z, "_all_full_file.rds"))
   #We exclude all controls, as we believe that the patients are better matched
   #to the patient cells. 
   loc_file <- loc_file[-which(loc_file$group == "Ctrl"),]

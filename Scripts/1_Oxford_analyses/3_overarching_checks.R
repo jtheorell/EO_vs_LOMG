@@ -27,6 +27,3 @@ table(metadata$ageChunks, metadata$Group, metadata$Sex)
 #  60-69    3    0    5       0
 #  >70      1    0    4       0
 
-#This shows that we have two young male EOMG donors that sort of derail the balance,
-#as we lack controls for them. We will however keep them in anyway. It also shows that we can
-#call all controls below 50 young and all controls above 50 old. 
