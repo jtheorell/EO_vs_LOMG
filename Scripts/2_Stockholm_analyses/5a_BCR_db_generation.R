@@ -113,6 +113,8 @@ table(fullBCR$intraClonalDistance)
 
 #   0    1    2    3    4 
 #1314   12   10   14   11 
+(11+14+10+12)/(1314+11+14+10+12)
+#0.03453343
 #Which shows that this is a conservative but sensible threshold. 
 #And the same is done for the light chain
 fullBCR$intraClonalDistanceLight <- NA
@@ -146,6 +148,8 @@ for(i in cloneNames){
 table(fullBCR$intraClonalDistanceLight)
 #   0    1    2    6    8   14 
 #1293    6   18    8    2    4
+(14+8+6+2+1)/(1293+14+8+6+2+1)
+#0.0234139
 #Here there is a bit more laxity which is not strange considering that the clones
 #have been defined on theheavy chain only, but it also shows that for the vast
 #Majority of the cells, the clonal definitions make sense. Arguably, even a 

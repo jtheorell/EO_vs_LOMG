@@ -82,6 +82,7 @@ p <- ggplot(oxPlotDat, aes(x = PLSDA1,
   scale_color_manual(values = c("red", "red4", "grey", "blue", "#555555", "#AA00FF")) 
 p
 
+
 #The separation is of course along this axis
 oxROCDat <- oxPlotDat[which(grepl("OMG", oxPlotDat$Group) &
                               grepl("thym", oxPlotDat$Group)==FALSE),]
@@ -107,7 +108,7 @@ maxValPoss <- which(balancedAccList == maxVal)
 bestScoreThreshold <- scoreVals[maxValPoss[1]]
 conMatList[[max(which(balancedAccList == maxVal))]]
 
-#So this works perfectly allright: 
+#So this works well: 
 #          Reference
 #Prediction EOMG LOMG
 #      EOMG   10    0
@@ -133,6 +134,24 @@ confusionMatrix(factor(stockPredY,
 #EOMG    8    1
 #LOMG    0    5
 
+#And now, if the same splsDA threshold is used to separate the young from the 
+#old controls in the Oxford data:
+oxCtrlDat <- oxPlotDat[grep("ctrl", oxPlotDat$Group),]
+
+oxCtrlPredY <- rep("Young_ctrl", nrow(oxCtrlDat))
+oxCtrlPredY[which(oxCtrlDat$PLSDA1 > bestScoreThreshold)] <- "Old_ctrl"
+
+confusionMatrix(factor(oxCtrlPredY, 
+                       levels = c("Young_ctrl", "Old_ctrl")), 
+                factor(oxCtrlDat$Group, 
+                       levels = c("Young_ctrl", "Old_ctrl")),
+                positive = "Young_ctrl")
+#            Reference
+#Prediction   Young_ctrl Old_ctrl
+#  Young_ctrl         10        4
+#  Old_ctrl            0        6
+#Sensitivity : 1.0000          
+#Specificity : 0.6000
 
 #Now, we are going to greate a ROC curve for the
 #Oxford data, which will show why we end up in the place we do end up in for the 
@@ -214,3 +233,11 @@ ggsave(paste0("Results/Graphics/Oxford_and_Stockholm/Freqs_and_PLSDA/Used_Stockh
 p + theme(legend.position = "none")
 ggsave(paste0("Results/Graphics/Oxford_and_Stockholm/Freqs_and_PLSDA/Used_Stockholm_Euclid_PLSDA_on_Oxford_grid_stripped.pdf"), 
        width = 5, height = 5)
+
+#Here is the best score threshold: 
+bestScoreThreshold
+#-0.129528
+
+#And the data is saved. 
+write.csv(oxPlotDat, "Results/Data/Oxford_and_Stockholm/PLSDA_data_UK.csv")
+write.csv(stockPlotDat, "Results/Data/Oxford_and_Stockholm/PLSDA_data_SE.csv")

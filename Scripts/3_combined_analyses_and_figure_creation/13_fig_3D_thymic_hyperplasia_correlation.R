@@ -7,7 +7,7 @@ popVec <- c("B", "CD4T", "CD8T", "TCRgd", "NK", "ILC")
 
 freqTabMajorPops <- do.call("rbind", lapply(popVec, function(x){
   print(x)
-  big_all_file_with_pJor <- readRDS(paste0("../External/Oxford/Resulting_data/", x, "/", x,  "_full_file.rds"))
+  big_all_file_with_pJor <- readRDS(paste0("../External/Oxford/Resulting_data_15_neighbors/", x, "/", x,  "_full_file.rds"))
   #EXCLUSION OF PJOR
   #As it is clear that the donor PJor is more or less dead (95% of the cells are
   #gated out at the dump/dead gate stage), it will be excluded here, before going
@@ -57,38 +57,26 @@ freqTabThy$hyperNumeric <- sapply(freqTabThy$hyperplasia, switch,
                                   "Moderate" = 2, 
                                   "Major" = 3)
 
-#Now, are there any correlations to be found here? 
-#corTestList <- lapply(row.names(signPops), function(x){
-#  cor.test(freqTabThy$hyperNumeric, freqTabThy[,which(colnames(freqTabThy) == x)])
-#})
-#
-#names(corTestList) <- row.names(signPops)
-#
-#round(p.adjust(unlist(lapply(corTestList, function(x) x$p.value)), method = "fdr"), 3)
-#CD8T_LOMGlow_1 CD8T_LOMGlow_2   NK_EOMGlow_1 
-#         0.673          0.175          0.099
-
-#round(unlist(lapply(corTestList, function(x) x$estimate)), 3)
-
-#CD8T_LOMGlow_1.cor CD8T_LOMGlow_2.cor   NK_EOMGlow_1.cor 
-#             0.144              0.441             -0.643
-
 #After closer consideration, it is only meaningful to do this for the EOMG pop. 
-
+cortTestRes <- cor.test(freqTabThy$hyperNumeric, log(freqTabThy[,which(colnames(freqTabThy) == "NK_EOMGlow_1")]),
+                        method = "pearson")
+p.adjust(cortTestRes$p.value, method = "fdr", n = 2) #0.1119545
+cortTestRes$estimate #-0.5901353
 
 #We also need to investigate whether this is the case for the major cell populations
 corTestList <- lapply(popVec, function(x){
-  cor.test(freqTabThy$hyperNumeric, freqTabThy[,which(colnames(freqTabThy) == x)])
+  cor.test(freqTabThy$hyperNumeric, log(freqTabThy[,which(colnames(freqTabThy) == x)]),
+           method = "pearson")
 })
 names(corTestList) <- popVec
 round(p.adjust(unlist(lapply(corTestList, function(x) x$p.value)), method = "fdr"), 3)
 #    B  CD4T  CD8T TCRgd    NK   ILC 
-#0.868 0.868 0.480 0.251 0.266 0.266
-#So a tendency towards 
+#0.905 0.905 0.322 0.035 0.322 0.251
+#So a seeming significance for gamma-deltas. 
 
 round(unlist(lapply(corTestList, function(x) x$estimate)), 3)
-#    B.cor  CD4T.cor  CD8T.cor TCRgd.cor    NK.cor   ILC.cor 
-#    0.057    -0.071     0.331     0.620    -0.482     0.499
+#    B.rho  CD4T.rho  CD8T.rho TCRgd.rho    NK.rho   ILC.rho
+#    0.041    -0.062     0.407     0.768    -0.418     0.544
 
 #Nothing significant here. 
 
@@ -103,43 +91,33 @@ freqTabThySamps$hyperNumeric <- sapply(freqTabThySamps$hyperplasia, switch,
                                   "Major" = 3)
 
 #And now for the correlations in the thymus. 
-#corTestListThy <- lapply(row.names(signPops), function(x){
-#  cor.test(freqTabThySamps$hyperNumeric, freqTabThySamps[,which(colnames(freqTabThySamps) == x)])
-#})
-#
-#names(corTestListThy) <- row.names(signPops)
-#names(corTestListThy) <- row.names(signPops)
-#round(p.adjust(unlist(lapply(corTestListThy, function(x) x$p.value)), method = "fdr"), 3)
-#CD8T_LOMGlow_1 CD8T_LOMGlow_2   NK_EOMGlow_1 
-#         0.346          0.364          0.070
-#round(unlist(lapply(corTestListThy, function(x) x$estimate)), 3)
-#CD8T_LOMGlow_1.cor CD8T_LOMGlow_2.cor   NK_EOMGlow_1.cor 
-#             0.444             -0.345             -0.738 
-
 #It is only really meaningful to look at the EOMG cluster. 
 
-cortTestRes <- cor.test(freqTabThySamps$hyperNumeric, freqTabThySamps[,which(colnames(freqTabThySamps) == "NK_EOMGlow_1")])
-
+cortTestRes <- cor.test(freqTabThySamps$hyperNumeric, 
+                        log(freqTabThySamps[,which(colnames(freqTabThySamps) == "NK_EOMGlow_1")]),
+                        method = "pearson")
+p.adjust(cortTestRes$p.value, method = "fdr", n = 2) #0.1016018
+cortTestRes$estimate #-0.6646862
 
 #Now, what about the major cell populations? 
 corTestListThy <- lapply(popVec, function(x){
-  cor.test(freqTabThySamps$hyperNumeric, freqTabThySamps[,which(colnames(freqTabThySamps) == x)])
+  cor.test(freqTabThySamps$hyperNumeric, log(freqTabThySamps[,which(colnames(freqTabThySamps) == x)]),
+           method = "pearson")
 })
 names(corTestListThy) <- popVec
 
 round(p.adjust(unlist(lapply(corTestListThy, function(x) x$p.value)), method = "fdr"), 3)
 #    B  CD4T  CD8T TCRgd    NK   ILC 
-#0.293 0.293 0.293 0.293 0.293 0.293
+#0.305 0.305 0.305 0.298 0.406 0.305
 
 round(unlist(lapply(corTestListThy, function(x) x$estimate)), 3)
 #    B.cor  CD4T.cor  CD8T.cor TCRgd.cor    NK.cor   ILC.cor 
-#    0.426     0.395    -0.449    -0.639    -0.486    -0.518
+#    0.505     0.425    -0.478    -0.667    -0.317    -0.441
 
 #So, overall, there is a small trend that NK cells in general (as well as gamma-deltas)
 #follow the same pattern as the NK_EOMGlow_1 population, but the trends are 
 #much weaker, and it is not explained by a general increase in the T-cell subsets, 
 #as the CD4 go up a little but the CD8 go down too. 
-
 
 freqTabNKFoc <- data.frame("Reference" = log10(freqTabThy[,which(colnames(freqTabThy) == "NK")]), 
                            "NK_cluster" = log10(freqTabThy[,which(colnames(freqTabThy) == "NK_EOMGlow_1")]),
@@ -182,11 +160,46 @@ identical(freqTabThySamps$Donor, freqTabPreThySampCorr$Donor) #TRUE
 identical(colnames(freqTabThySamps), colnames(freqTabPreThySampCorr)) #TRUE
 
 #Now, does cluster 49 correlate? 
-corTestList <- lapply("NK_EOMGlow_1", function(x){
-    cor.test(freqTabThySamps[,which(colnames(freqTabThySamps) == x)], 
-             freqTabPreThySampCorr[,which(colnames(freqTabPreThySampCorr) == x)])
+corTestList <- lapply(c("NK_EOMGlow_1", "NK"), function(x){
+    cor.test(log(freqTabThySamps[,which(colnames(freqTabThySamps) == x)]), 
+             log(freqTabPreThySampCorr[,which(colnames(freqTabPreThySampCorr) == x)]),
+             method = "spearman")
 })
 
-round(unlist(lapply(corTestList, function(x) x$p.value)), 5)
+round(unlist(lapply(corTestList, function(x) x$p.value)), 5) 
+#NK_EOMGlow_1: 0.005557 
+#NK: 0.3488
 
-lapply(corTestList, function(x) x$estimate)
+lapply(corTestList, function(x) x$estimate) 
+#NK_EOMGlow_1: 0.830303
+#NK: 0.3333333
+
+#What about the other subsets?
+corTestList <- lapply(c("B", "CD4T", "CD8T", "TCRgd", "ILC"), function(x){
+  cor.test(freqTabThySamps[,which(colnames(freqTabThySamps) == x)], 
+           freqTabPreThySampCorr[,which(colnames(freqTabPreThySampCorr) == x)],
+           method = "spearman")
+})
+
+round(unlist(lapply(corTestList, function(x) x$p.value)), 5) 
+#0.58354 0.06647 0.86475 0.34885 0.40695 without correction. 
+
+round(unlist(lapply(corTestList, function(x) x$estimate)), 5) 
+#    cor      cor      cor      cor      cor 
+# 0.20000  0.61212 -0.06667 -0.33333 -0.29697
+
+#And now, we plot the NK/NK and NK_EOMGlow_1 PBMC/thymus correlations. 
+eomgNKPlotDat <- data.frame("Thymus" = freqTabThySamps[,which(colnames(freqTabThySamps) == "NK_EOMGlow_1")],
+                            "PBMC" = freqTabPreThySampCorr[,which(colnames(freqTabPreThySampCorr) == "NK_EOMGlow_1")])
+ggplot(eomgNKPlotDat, aes(x = log10(Thymus), y = log10(PBMC))) +
+  geom_point(size = 4, color = "black") + theme_bw() + theme(legend.position = "none")
+  
+ggsave("Results/Graphics/Oxford/Thymus/NK_EOMGlow_1_PBMC_thymus_corr.pdf",
+       width = 5, height = 5)
+
+eomgNKPlotDat <- data.frame("Thymus" = freqTabThySamps[,which(colnames(freqTabThySamps) == "NK")],
+                            "PBMC" = freqTabPreThySampCorr[,which(colnames(freqTabPreThySampCorr) == "NK")])
+ggplot(eomgNKPlotDat, aes(x = log10(Thymus), y = log10(PBMC))) +
+  geom_point(size = 4, color = "grey") + theme_bw() + theme(legend.position = "none")
+ggsave("Results/Graphics/Oxford/Thymus/NK_all_PBMC_thymus_corr.pdf",
+       width = 5, height = 5)

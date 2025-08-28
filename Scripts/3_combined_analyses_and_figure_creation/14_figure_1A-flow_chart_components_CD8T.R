@@ -54,7 +54,7 @@ subclustColVecShort <- c(dColorVector(1:5, colors = c("white",  "#440154FF", "bl
                          dColorVector(1:4, colors = c("white",  "#35B779FF", "black"))[2:3],
                          dColorVector(1:5, colors = c("white",  "#FDE725FF", "black"))[2:4],
                          dColorVector(1:4, colors = c("white",  "#31688EFF", "black"))[2:3],
-                         "grey")
+                         "#DDDDDD")
 names(subclustColVecShort) <- sort(unique(plotEuclidClusterList[[1]]))
 
 subclustColListLong <- lapply(plotEuclidClusterListOrd, function(x){
@@ -63,8 +63,8 @@ subclustColListLong <- lapply(plotEuclidClusterListOrd, function(x){
   }))
 })
 
-#We change the grey color for the stockholm data somewhat
-subclustColListLong[[2]][which(subclustColListLong[[2]] == "grey")] <- "#777777"
+#We change the #DDDDDD color for the stockholm data somewhat
+subclustColListLong[[2]][which(subclustColListLong[[2]] == "#DDDDDD")] <- "#AAAAAA"
 
 plotEuclidSimpleList <- lapply(plotEuclidClusterListOrd, function(x){
   gsub("^.{1,5}_|_.$", "", x)
@@ -77,9 +77,9 @@ harmonyUmapOrd <- harmonyUmap
 harmonyUmapOrd[oxPlotRows,] <- harmonyUmapOrd[oxPlotRows,][oxPlotOrder,]
 harmonyUmapOrd[stockPlotRows,] <- harmonyUmapOrd[stockPlotRows,][stockPlotOrder,]
 
-dir.create(paste0("Results/Graphics/Oxford_and_Stockholm/Harmonisation/", j))
+dir.create("Results/Graphics/Oxford_and_Stockholm/Harmonisation/CD8T")
 #Step one is showing the neighbor vectors, so we have to import those. 
-smoothFileList <- list.files("../External/Oxford/Resulting_data/CD8T/NeighSmoothModels", 
+smoothFileList <- list.files("../External/Oxford/Resulting_data_15_neighbors/CD8T/NeighSmoothModels", 
                              full.names = TRUE)
 
 summedSmooth <- readRDS(smoothFileList[1])
@@ -100,25 +100,25 @@ ctrlProb <- locSmoothDf$Ctrl[focOxRows][oxPlotOrder]
 j <- "CD8T"
 dColorPlot(eomgProb, 
            xYData = rawUmapOrd[oxPlotRows,], 
-           colors = c("#35B779FF","grey", "grey", "#440154FF"), dotSize = 3,
+           colors = c("#35B779FF","#DDDDDD", "#DDDDDD", "#440154FF"), dotSize = 3,
            plotName = paste0("Results/Graphics/Oxford_and_Stockholm/Harmonisation/", j, 
                              "/", j, "_1a_Oxford_umap_EOMG_smooth"))
 dColorPlot(lomgProb, 
            xYData = rawUmapOrd[oxPlotRows,], 
-           colors = c("#31688EFF","grey", "grey", "#FDE725FF"), dotSize = 3,
+           colors = c("#31688EFF","#DDDDDD", "#DDDDDD", "#FDE725FF"), dotSize = 3,
            plotName = paste0("Results/Graphics/Oxford_and_Stockholm/Harmonisation/", j, 
                              "/", j, "_1b_Oxford_umap_LOMG_smooth"))
 
 dColorPlot(ctrlProb, 
            xYData = rawUmapOrd[oxPlotRows,], 
-           colors = c("orange","grey", "grey", "black"), dotSize = 3,
+           colors = c("orange","#DDDDDD", "#DDDDDD", "black"), dotSize = 3,
            plotName = paste0("Results/Graphics/Oxford_and_Stockholm/Harmonisation/", j, 
                              "/", j, "_1c_Oxford_umap_ctrl_smooth"))
 
 
 dColorPlot(plotEuclidSimpleList[[1]], 
            xYData = rawUmapOrd[oxPlotRows,], 
-           colors = c("#440154FF", "#35B779FF", "#FDE725FF", "#31688EFF", "grey"), dotSize = 3,
+           colors = c("#440154FF", "#35B779FF", "#FDE725FF", "#31688EFF", "#DDDDDD"), dotSize = 3,
            plotName = paste0("Results/Graphics/Oxford_and_Stockholm/Harmonisation/", j, "/", j, "_2_Oxford_umap_raw"))
 
 dColorPlot(plotEuclidClusterListOrd[[1]], 
@@ -136,15 +136,15 @@ dColorPlot(plotEuclidClusterListOrd[[2]],
            colors = subclustColListLong[[2]], dotSize = 6,
            plotName = paste0("Results/Graphics/Oxford_and_Stockholm/Harmonisation/", j, "/", j, "_4_Stockholm_umap_harmony_subclusts"))
 
-#Now, we also create two grey plots, that will be combined in the figure. 
+#Now, we also create two #DDDDDD plots, that will be combined in the figure. 
 dColorPlot(rep("Ox", length(plotEuclidClusterListOrd[[1]])), 
            xYData = harmonyUmapOrd[oxPlotRows,], 
-           colors = c("grey", "black"), dotSize = 3,
+           colors = c("#DDDDDD", "black"), dotSize = 3,
            plotName = paste0("Results/Graphics/Oxford_and_Stockholm/Harmonisation/", j, "/", j, "_5_Oxford_umap_harmony_no_colors"))
 
 dColorPlot(rep("Stock", length(plotEuclidClusterListOrd[[2]])), 
            xYData = harmonyUmapOrd[stockPlotRows,], 
-           colors = c("#777777", "black"), dotSize = 6,
+           colors = c("#AAAAAA", "black"), dotSize = 6,
            plotName = paste0("Results/Graphics/Oxford_and_Stockholm/Harmonisation/", j, "/", j, "_6_Stockholm_umap_harmony_no_colors"))
 
 #Finally, we only show the one population that is significant. This is in
@@ -156,11 +156,11 @@ hitEuclidClusterList[[2]][-grep("LOMGlow", hitEuclidClusterList[[2]])] <- "None"
 
 dColorPlot(hitEuclidClusterList[[1]], 
            xYData = harmonyUmapOrd[oxPlotRows,], 
-           colors = c(subclustColVecShort[grep("LOMGlow", names(subclustColVecShort))], "grey"), dotSize = 3,
+           colors = c(subclustColVecShort[grep("LOMGlow", names(subclustColVecShort))], "#DDDDDD"), dotSize = 3,
            plotName = paste0("Results/Graphics/Oxford_and_Stockholm/Harmonisation/", j, "/", j, "_7_Oxford_umap_harmony_hit_pop"))
 
 dColorPlot(hitEuclidClusterList[[2]], 
            xYData = harmonyUmapOrd[stockPlotRows,], 
-           colors = c(subclustColVecShort[which(names(subclustColVecShort) == "LOMGlow_2")], "#777777"), dotSize = 6,
+           colors = c(subclustColVecShort[grep("LOMGlow", names(subclustColVecShort))], "#AAAAAA"), dotSize = 6,
            plotName = paste0("Results/Graphics/Oxford_and_Stockholm/Harmonisation/", j, "/", j, "_8_Stockholm_umap_harmony_hit_pop"))
 
