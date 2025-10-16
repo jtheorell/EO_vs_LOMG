@@ -1,0 +1,4 @@
+﻿Subcluster,Percent_of_parent_UK,Percent_of_parent_SE,Median_size_in_EOMG_UK,Median_size_in_EOMG_SE,Median_size_in_LOMG_UK,Median_size_in_LOMG_SE,Median_size_in_matched_ctrls,Contribution_to_group_separation
+CD8T#33-Naïve,9,16,0.009147685,0.0393803,0.000586156,0.01544051,0.005234678,35
+CD8T#34-MAIT,3,2,0.006911504,0.004267888,0.000439976,0.000895719,0.003599897,56
+NK#49-highly_cytotoxic,6,8,0.000920339,0.00323111,0.004168808,0.023078709,0.004413771,9

@@ -1,0 +1,6 @@
+"","Percent_of_parent_UK","Percent_of_parent_SE","Median_size_in_EOMG_UK","Median_size_in_EOMG_SE","Median_size_in_LOMG_UK","Median_size_in_LOMG_SE","Median_size_in_matched_ctrls","Contribution_to_group_separation"
+"1",16,16,1,1,1,1,1,56
+"2",0,0,0,0,0,0,0,0
+"CD8T#33-Naïve",9,16,1,1,0.0640769768526135,0.392087160331435,0.57224073631744,35
+"CD8T#34-MAIT",3,2,1,1,0.0636585032722256,0.20987406417413,0.520855807939922,56
+"NK#49-highly_cytotoxic",6,8,0.208515348893271,0.140003931762388,0.94450029238037,1,1,9
