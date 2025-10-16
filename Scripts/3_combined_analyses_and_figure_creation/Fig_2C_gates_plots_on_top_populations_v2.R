@@ -11,7 +11,6 @@ library(reshape2)
 library(tidysdm)
 library(flowCore)
 
-#The 
 pValFoc <- 
   suppressWarnings(read.csv("Results/Data/Oxford_and_Stockholm/Harmonisation/Sign_in_Stock_and_Ox.csv", row.names = 1))
 #This creates an irrelevant warning, hence the suppression. 
@@ -295,6 +294,11 @@ for(i in popVec){
     ggsave(paste0("Results/Graphics/Oxford_and_Stockholm/Violins_on_significant/", 
                   locFocClust, "_stripped_bare.png"), plot = p, 
            width = 5, height = 2)
+    
+    #Here, we save this data: 
+    write.csv(locDatLong, 
+              paste0("Results/Data/For_figure_file/Figure_2C_violin_data_", 
+                     locFocClust, ".csv"), row.names = FALSE)
     
     #And now at the end, we also plot the full thing. 
     set.seed(18)

@@ -15,7 +15,8 @@ oxMeta <- read.csv("Data/Oxford/Documentation/Metadata_per_id.csv")
 stockMeta <- read.csv("Data/Stockholm/Metadata/Metadata_combined_used.csv")
 
 dir.create("Results/Graphics/Oxford_and_Stockholm/Freqs_and_PLSDA")
-for(i in runVec){
+for(a in names(runVec)){
+  i <- runVec[[which(names(runVec) == a)]]
   print(i[1])
   focusPopulations <- read.csv(i$focPops)$X
   for(j in c("ox", "stock")){
@@ -171,6 +172,10 @@ for(i in runVec){
       
       mgDat <- locDatFoc
     }
+    #And this data is saved for the file used in the publication. 
+    write.csv(freqTabLong, 
+              paste0("Results/Data/For_figure_file/Figure_2B_and_supp_frequencies_",a, "_", j, ".csv"), row.names = FALSE)
+    
     #And here comes the rest of the PLS-DA analysis. 
     eoLoDat <- mgDat[-grep("thym|uncertain", mgDat$Group),]
     eoLoDatPLS <- eoLoDat[,-which(colnames(eoLoDat) %in% c("Group", "Donor", "Age", "Sex"))]

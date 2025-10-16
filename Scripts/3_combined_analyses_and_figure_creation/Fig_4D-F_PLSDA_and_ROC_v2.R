@@ -239,5 +239,10 @@ bestScoreThreshold
 #-0.129528
 
 #And the data is saved. 
-write.csv(oxPlotDat, "Results/Data/Oxford_and_Stockholm/PLSDA_data_UK.csv")
-write.csv(stockPlotDat, "Results/Data/Oxford_and_Stockholm/PLSDA_data_SE.csv")
+oxPlotDat$scoreThreshold <- stockPlotDat$scoreThreshold <- bestScoreThreshold
+write.csv(oxPlotDat, "Results/Data/For_figure_file/Figure_4D_PLSDA_data_UK.csv")
+write.csv(oxROCDat, "Results/Data/For_figure_file/Figure_4E_ROC_PLSDA_data_UK.csv")
+write.csv(stockPlotDat, "Results/Data/For_figure_file/Figure_4F_PLSDA_data_SE.csv")
+
+
+

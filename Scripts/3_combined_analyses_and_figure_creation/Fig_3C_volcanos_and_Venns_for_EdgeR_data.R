@@ -67,5 +67,7 @@ for(i in names(edgerFullOutcomes)){
   p <- p+theme(legend.position = "None")
   ggsave(paste0("Results/Graphics/Stockholm/Volcano/", i, "_no_legend_.pdf"),
          width = 5, height = 5)
+  #And the data is saved
+  write.csv(locDat, paste0("Results/Data/For_figure_file/Figure_3C_", i, ".csv"))
   
 }

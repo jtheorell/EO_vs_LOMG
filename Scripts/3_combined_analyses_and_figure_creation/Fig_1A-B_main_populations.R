@@ -51,14 +51,7 @@ popVec <- list("B", "CD4T", "CD8T", "TCRgd",
 
 oxfordFreqDatLong <- do.call("rbind", lapply(popVec, function(x){
   print(x)
-  big_all_file_with_pJor <- readRDS(paste0("../External/Oxford/Resulting_data/", x, "/", x,  "_full_file.rds"))
-  
-  #######
-  #EXCLUSION OF PJOR
-  #As it is clear that the donor PJor is more or less dead (95% of the cells are
-  #gated out at the dump/dead gate stage), it will be excluded here, before going
-  #in to the real analyses. 
-  big_all_file <- big_all_file_with_pJor[-which(big_all_file_with_pJor$id == "PJor"),]
+  big_all_file <- readRDS(paste0("../External/Oxford/Resulting_data/", x, "/", x,  "_full_file_post_Euclid_consensus.rds"))
   
   big_all_file$group[which(big_all_file$group == "preLOMG")] <- "uncertain"
   big_all_file$group[which(big_all_file$group == "LOMG" &
@@ -85,14 +78,16 @@ oxfordFreqDatLong <- do.call("rbind", lapply(popVec, function(x){
                            "Freq" = locRes, 
                            "Group" = y,
                            "idTime" = locSampList)
+    locResDf$Sex <- sapply(locResDf$idTime, function(x){
+      big_all_file$sex[which(big_all_file$idTime == x)][1]
+    })
     locResDf
   }))
 }))
+dir.create("Results/Data/For_figure_file")
 
-oxfordFreqDatLong$Sex <- sapply(oxfordFreqDatLong$idTime, function(x){
-  big_all_file$sex[which(big_all_file$idTime == x)][1]
-})
-
+write.csv(oxfordFreqDatLong, "Results/Data/For_figure_file/Figure_1A_UK.csv", row.names = FALSE)
+write.csv(stockholmFreqDatLong, "Results/Data/For_figure_file/Figure_1B_SE.csv", row.names = FALSE)
 
 #And now, we are ready to create the figures. 
 freqTabList <- list("Stock" = stockholmFreqDatLong, "Ox" = oxfordFreqDatLong)

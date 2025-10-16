@@ -57,8 +57,10 @@ freqTabThy$hyperNumeric <- sapply(freqTabThy$hyperplasia, switch,
                                   "Moderate" = 2, 
                                   "Major" = 3)
 
-#After closer consideration, it is only meaningful to do this for the EOMG pop. 
-cortTestRes <- cor.test(freqTabThy$hyperNumeric, log(freqTabThy[,which(colnames(freqTabThy) == "NK_EOMGlow_1")]),
+#After closer consideration, it is only meaningful to do this for the EOMG pop as 
+#we lack data for the others.. 
+cortTestRes <- cor.test(freqTabThy$hyperNumeric, log(freqTabThy[,which(colnames(freqTabThy) 
+                                                                       == "NK_EOMGlow_1")]),
                         method = "pearson")
 p.adjust(cortTestRes$p.value, method = "fdr", n = 2) #0.1119545
 cortTestRes$estimate #-0.5901353
@@ -134,6 +136,8 @@ ggplot(freqTabNKLong, aes(x = value, y = HypeprlasiaNumeric, colour = variable))
 ggsave("Results/Graphics/Oxford/Thymus/NK_EOMGlow_1_hyperplasia_correlation.pdf",
        width = 5, height = 5)
 
+#And this data is saved. 
+write.csv(freqTabNKLong, "Results/Data/For_figure_file/Figure_4C_PBMC_thymic_hyperplasia_corr.csv", row.names = FALSE)
 
 #The same is of course done for the thymus cells.
 freqTabNKFoc <- data.frame("Reference" = log10(freqTabThySamps[,which(colnames(freqTabThySamps) == "NK")]), 
@@ -150,6 +154,8 @@ ggplot(freqTabNKLongThymus, aes(x = value, y = HypeprlasiaNumeric, colour = vari
   theme(legend.position = "none")  + scale_y_continuous(limits = c(-0.1,3.1))
 ggsave("Results/Graphics/Oxford/Thymus/NK_EOMGlow_1_hyperplasia_correlation_thymus_cells.pdf",
        width = 5, height = 5)
+
+write.csv(freqTabNKLongThymus, "Results/Data/For_figure_file/Figure_4C_thymus_thymic_hyperplasia_corr.csv", row.names = FALSE)
 
 #At this stage, we should also obviously correlate thymus cell numbers to blood cell numbers
 freqTabThySamps <- freqTabBig[grep("_thy", row.names(freqTabBig)),]
@@ -197,9 +203,15 @@ ggplot(eomgNKPlotDat, aes(x = log10(Thymus), y = log10(PBMC))) +
 ggsave("Results/Graphics/Oxford/Thymus/NK_EOMGlow_1_PBMC_thymus_corr.pdf",
        width = 5, height = 5)
 
+write.csv(eomgNKPlotDat, "Results/Data/For_figure_file/Figure_4A_PBMC_thymus_corr_cluster_49.csv", row.names = FALSE)
+
+
 eomgNKPlotDat <- data.frame("Thymus" = freqTabThySamps[,which(colnames(freqTabThySamps) == "NK")],
                             "PBMC" = freqTabPreThySampCorr[,which(colnames(freqTabPreThySampCorr) == "NK")])
 ggplot(eomgNKPlotDat, aes(x = log10(Thymus), y = log10(PBMC))) +
   geom_point(size = 4, color = "grey") + theme_bw() + theme(legend.position = "none")
 ggsave("Results/Graphics/Oxford/Thymus/NK_all_PBMC_thymus_corr.pdf",
        width = 5, height = 5)
+
+write.csv(eomgNKPlotDat, "Results/Data/For_figure_file/Figure_4B_PBMC_thymus_corr_all_NK.csv", row.names = FALSE)
+

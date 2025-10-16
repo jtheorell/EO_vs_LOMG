@@ -45,18 +45,22 @@ for(i in colsAndNames){
     p + theme_void() + theme(legend.position="none") + scale_y_continuous(expand = c(0, 0))
     ggsave(paste0("Results/Graphics/Stockholm/CloneBarGraphs/", i[[1]], "_no_legend.pdf"),
            width = 9, height = 6)
+    
+    #And the data is saved
+    write.csv(locDat, paste0("Results/Data/For_figure_file/Figure_3E_", i[[1]], ".csv"))
     #The stats are also included here. 
-    print(round(fisher.test(locCounts[,1:2], simulate.p.value = TRUE)$p.value, 2))
-    print(round(fisher.test(locCounts[,c(1,3)], simulate.p.value = TRUE)$p.value, 2))
+    print(round(fisher.test(locCounts[,1:2], simulate.p.value = TRUE)$p.value, 8))
+    print(round(fisher.test(locCounts[,c(1,3)], simulate.p.value = TRUE)$p.value, 8))
 }
+
 #[1] "CD8T_Clonal"
-#Saving 7 x 7 in image
+#Saving 8.69 x 6.68 in image
 #[1] 0
-#[1] 0.35
+#[1] 0.3468512
 #[1] "CD8T_V_gene_fam"
-#Saving 7 x 7 in image
-#[1] 0.02
-#[1] 0
+#Saving 8.69 x 6.68 in image
+#[1] 0.015992
+#[1] 0.00049975
 
 #So this makes sense: there is no difference between the overall population and
 #the LOMG_2 cluster in terms of clonality, but all other categories differ. 

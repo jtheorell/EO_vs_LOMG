@@ -65,10 +65,14 @@ singlerList <- lapply(signPops, function(x){
     ggsave(paste0("Results/Graphics/Stockholm/SingleR_and_MAIT/", x, "_Singler_categories.pdf"))
     p <- p+theme(legend.position = "none")
     ggsave(paste0("Results/Graphics/Stockholm/SingleR_and_MAIT/", x, "_Singler_categories_stripped.pdf"), width = 1, height = 5)
+    #And we save the figure data here. 
+    write.csv(ggDat, paste0("Results/Data/For_figure_file/Figure_3B_SingleR_", x, ".csv"))
     innerRes
   } else {
     stop("Get your house in order before trying to analyse")
   }
+  
+  
 })
 
 lapply(singlerList, function(x) table(x$labels))
@@ -130,7 +134,7 @@ identical(rownames(CD8ColDat), rownames(labelsCD8TTCR)) #TRUE
 freqTabList <- list()
 for(i in c(signPops[1:2], "Ref")){
   if(i == "Ref"){
-    locColDat <- CD8ColDat#[-which(labelsCD8T$Ox_hit_clust %in% signPops[1:2]),]
+    locColDat <- CD8ColDat
   } else {
     locColDat <- CD8ColDat[which(labelsCD8TTCR$Ox_hit_clust == i),]
   }
@@ -183,6 +187,9 @@ for(i in c(signPops[1:2], "Ref")){
                axis.text.y = element_blank())
   p
   ggsave(paste0("Results/Graphics/Stockholm/SingleR_and_MAIT/", i, "_clonal_vs_MAIT_vs_BVFam_stripped.pdf"), width = 5, height = 5)
+  #And we save the csv 
+  write.csv(freqTab, paste0("Results/Data/For_figure_file/Figure_3F_AIRR_", i, ".csv"), row.names = FALSE)
+  
   freqTabList[[i]] <- c("Freqs" = freqTab, "Counts" = longTab)
 }
 

@@ -9,32 +9,13 @@ protDf <- as.data.frame(t(logcounts(sthlmProtDat)))
 #The analysis needs to be performed by hand, on a population by population basis
 pResLow <- read.csv("Results/Data/Oxford/Gating/Interesting_gated_populations_p_vals_Oxford.csv",
                     row.names = 1)
-
-##We start with the B-cells, where we look for these populatsions: 
-##B_IgDposCD27negCD24posCD38posTrans
-##B_IgDnegCD27neg  
-#BDf <- protDf[which(sthlmProtDat$cellType == "B"),]
-#plot(BDf$IgD_PROT, BDf$CD027_PROT)
-#abline(v = 0.5)
-#abline(h = 0.6)
-#B_IgDnegCD27neg_Counts <- sthlmProtDat$sample[which(sthlmProtDat$cellType == "B" &
-#                                                 protDf$IgD_PROT < 0.5 &
-#                                                 protDf$CD027_PROT < 0.6)]
-#                   
-#
-#plot(BDf$CD024_PROT, BDf$CD038_PROT)
-#abline(v = 0.34)
-#abline(h = 2)
-#B_IgDposCD27negCD24posCD38posTrans_Counts <- 
-#  sthlmProtDat$sample[which(sthlmProtDat$cellType == "B" &
-#                                    protDf$IgD_PROT >= 0.5 &
-#                                    protDf$CD027_PROT < 0.6 &
-#                                    protDf$CD024_PROT > 0.35 &
-#                                    protDf$CD038_PROT > 2)]
-
+row.names(pResLow)
+# [1] "DNT"              "TCRgd_CM_CD161"   "TCRgd_EM_CD38"    "TCRgd_EM_CD161"   "TCRgd_naive_CD25" "CD4T_EM_CD161"    "CD4T_naive_CD38" 
+# [8] "CD8T_CM_CCR4"     "CD8T_CM_CD25"     "CD8T_CM_CD38"     "CD8T_EM_CD25"     "CD8T_EM_CD38"     "CD8T_EM_CD161"    "CD8T_naive"      
+#[15] "CD8T_naive_CD7"   "CD8T_naive_CD27"  "CD8T_naive_CD31"  "CD8T_naive_CD38"  "CD8T_naive_CD161" "ILC1"       
                  
 #Now CD4. 
-#CD4T_naive_CD25                             
+#CD4T_naive_CD38                            
 #CD4T_EM_CD161  
 CD4Df <- protDf[which(sthlmProtDat$cellType == "CD4T"),]
 #We annoyingly lack CCR7 in this panel, so we will need to improvise. We will mainly
@@ -49,17 +30,17 @@ hist(CD4Df$CD028_PROT, breaks = 50)
 abline(v = 0.9)
 hist(CD4Df$CD057_PROT, breaks = 50)
 abline(v = 0.4)
-hist(CD4Df$CD025_PROT, breaks = 50)
-abline(v = 0.25)
+hist(CD4Df$CD038_PROT, breaks = 50)
+abline(v = 0.45)
 hist(CD4Df$CD161_PROT, breaks = 50)
 abline(v = 0.5)
-CD4T_naive_CD25_Counts <-  sthlmProtDat$sample[which(sthlmProtDat$cellType == "CD4T" &
+CD4T_naive_CD38_Counts <-  sthlmProtDat$sample[which(sthlmProtDat$cellType == "CD4T" &
                                                               protDf$CD045RA_PROT > 0.75 &
                                                               protDf$CD045RO_PROT < 0.5 &
                                                               protDf$CD028_PROT > 0.9 & 
                                                               protDf$CD057_PROT < 0.4 &
                                                               protDf$CD062L_PROT > 0.7 &
-                                                              protDf$CD025_PROT > 0.5)]
+                                                              protDf$CD038_PROT > 0.45)]
                                               
 CD4T_EM_CD161_Counts <- sthlmProtDat$sample[which(sthlmProtDat$cellType == "CD4T" &
                                                       protDf$CD045RA_PROT < 0.75 &
@@ -70,7 +51,7 @@ CD4T_EM_CD161_Counts <- sthlmProtDat$sample[which(sthlmProtDat$cellType == "CD4T
 #And now CD8.
 #We annoyingly lack CCR7 in this panel, so we will need to improvise. We will mainly
 #include CD62L as a proxy for CCR7 here. 
-
+#"CD8T_CM_CCR4"
 #"CD8T_CM_CD25"                       "CD8T_CM_CD38"                      
 #"CD8T_EM_CD25"                       "CD8T_EM_CD38"                      
 #"CD8T_EM_CD161"                      "CD8T_naive"                        
@@ -101,7 +82,8 @@ hist(CD8Df$CD161_PROT, breaks = 50)
 abline(v = 0.7)
 hist(CD8Df$CD025_PROT, breaks = 50)
 abline(v = 0.2)
-
+hist(CD8Df$CD194_PROT, breaks = 50)
+abline(v = 0.4)
 
 CD8T_naive_Counts <- sthlmProtDat$sample[which(sthlmProtDat$cellType == "CD8T" &
                                                       protDf$CD045RA_PROT > 0.75 &
@@ -170,6 +152,13 @@ CD8T_CM_CD38_Counts <- sthlmProtDat$sample[which(sthlmProtDat$cellType == "CD8T"
                                                    protDf$CD062L_PROT > 0.75 &
                                                    protDf$CD038_PROT > 1)]
 
+CD8T_CM_CD194_Counts <- sthlmProtDat$sample[which(sthlmProtDat$cellType == "CD8T" &
+                                                   protDf$CD045RA_PROT < 0.75 &
+                                                   protDf$CD045RO_PROT > 0.75 &
+                                                   protDf$CD057_PROT < 0.4 &
+                                                   protDf$CD062L_PROT > 0.75 &
+                                                   protDf$CD194_PROT > 0.4)]
+
 CD8T_EM_CD38_Counts <- sthlmProtDat$sample[which(sthlmProtDat$cellType == "CD8T" &
                                                    protDf$CD045RA_PROT < 0.75 &
                                                    protDf$CD045RO_PROT > 0.75 &
@@ -184,6 +173,7 @@ CD8T_EM_CD161_Counts <- sthlmProtDat$sample[which(sthlmProtDat$cellType == "CD8T
 
 #Now the gamma-delta
 #TCRgd_CM_CD161
+#TCRgd_EM_CD38
 #TCRgd_EM_CD161
 #TCRgd_naive_CD25
 TCRgdDf <- protDf[which(sthlmProtDat$cellType == "gdT"),]
@@ -201,6 +191,8 @@ hist(TCRgdDf$CD025_PROT, breaks = 50)
 abline(v = 0.12)
 hist(TCRgdDf$CD161_PROT, breaks = 50)
 abline(v = 0.5)
+hist(TCRgdDf$CD038_PROT, breaks = 50)
+abline(v = 0.6)
 
 TCRgd_naive_CD25_Counts <- sthlmProtDat$sample[which(sthlmProtDat$cellType == "gdT" &
                                                        protDf$CD045RA_PROT > 1 &
@@ -217,20 +209,42 @@ TCRgd_CM_CD161_Counts <- sthlmProtDat$sample[which(sthlmProtDat$cellType == "gdT
                                                      protDf$CD062L_PROT < 0.75 &
                                                      protDf$CD161_PROT > 0.5)]
 
+TCRgd_EM_CD38_Counts <- sthlmProtDat$sample[which(sthlmProtDat$cellType == "gdT" &
+                                                     protDf$CD045RA_PROT < 1 &
+                                                     protDf$CD045RO_PROT > 0.3 &
+                                                     protDf$CD062L_PROT < 0.75 &
+                                                     protDf$CD038_PROT > 0.6)]
+
 TCRgd_EM_CD161_Counts <- sthlmProtDat$sample[which(sthlmProtDat$cellType == "gdT" &
                                                      protDf$CD045RA_PROT < 1 &
                                                      protDf$CD045RO_PROT > 0.3 &
                                                      protDf$CD062L_PROT < 0.75 &
                                                      protDf$CD161_PROT > 0.5)]
 
-#Abd finally, the double negative population
+#And the double negative population
 #"CD4negCD8negT"  
 DNT_Count <- sthlmProtDat$sample[which(sthlmProtDat$cellType == "DNT")]
 
+#And finally an attempt on the ILC1. We will have to be pretty crude here, 
+#as we lack the resolution. So we will call them lin-CD127+CD56-CD117-
+ILCNKDf <- protDf[which(sthlmProtDat$cellType == "NK"),]
+hist(ILCNKDf$CD056_PROT, breaks = 50)
+abline(v = 0.6)
+hist(ILCNKDf$CD127_PROT, breaks = 50)
+abline(v = 0.2)
+hist(ILCNKDf$CD117_PROT, breaks = 50)
+abline(v = 0.06)
+
+ILC1_Count <- sthlmProtDat$sample[which(sthlmProtDat$cellType == "NK" &
+                                          protDf$CD056_PROT < 0.6 &
+                                          protDf$CD127_PROT > 0.2 &
+                                          protDf$CD117_PROT < 0.06)]
+#Only eight cells in this population, so it falls on its own absurdity. 
+
 #Now, these are all put together.
-allGatedCountList <- list("B_IgDnegCD27neg" = B_IgDnegCD27neg_Counts, 
-                          "B_IgDposCD27negCD24posCD38posTrans" = B_IgDposCD27negCD24posCD38posTrans_Counts,
-                          "CD4T_naive_CD25" = CD4T_naive_CD25_Counts,
+row.names(pResLow)
+
+allGatedCountList <- list("CD4T_naive_CD38" = CD4T_naive_CD38_Counts,
                           "CD4T_EM_CD161" = CD4T_EM_CD161_Counts,
                           "CD8T_naive" = CD8T_naive_Counts,
                           "CD8T_naive_CD7" = CD8T_naive_CD7_Counts,
@@ -238,6 +252,7 @@ allGatedCountList <- list("B_IgDnegCD27neg" = B_IgDnegCD27neg_Counts,
                           "CD8T_naive_CD31" = CD8T_naive_CD31_Counts,
                           "CD8T_naive_CD38" = CD8T_naive_CD38_Counts,
                           "CD8T_naive_CD161" = CD8T_naive_CD161_Counts,
+                          "CD8T_CM_CCR4" = CD8T_CM_CD194_Counts,
                           "CD8T_CM_CD25" = CD8T_CM_CD25_Counts,
                           "CD8T_CM_CD38" = CD8T_CM_CD38_Counts,
                           "CD8T_EM_CD25" = CD8T_EM_CD25_Counts,
@@ -245,8 +260,10 @@ allGatedCountList <- list("B_IgDnegCD27neg" = B_IgDnegCD27neg_Counts,
                           "CD8T_EM_CD161" = CD8T_EM_CD161_Counts,
                           "TCRgd_naive_CD25" = TCRgd_naive_CD25_Counts,
                           "TCRgd_CM_CD161" = TCRgd_CM_CD161_Counts,
+                          "TCRgd_EM_CD38" = TCRgd_EM_CD38_Counts,
                           "TCRgd_EM_CD161" = TCRgd_EM_CD161_Counts,
-                          "DNT" = DNT_Count)
+                          "DNT" = DNT_Count,
+                          "ILC1" = ILC1_Count)
 
 allGatedCounts <- as.data.frame(do.call("cbind", lapply(allGatedCountList, function(x){
   locDatFac <- factor(x, levels = c("1_1", "1_2", "1_3", "1_4", "1_5", "1_6",
@@ -294,7 +311,7 @@ colnames(pRes) <- "eomgLomgP"
 pResLowStock <- pRes[which(pRes[,1] < 0.05),]
 pResLowStock
 #     CD8T_naive  CD8T_naive_CD7 CD8T_naive_CD27 CD8T_naive_CD31 CD8T_naive_CD38    CD8T_CM_CCR4   CD8T_EM_CD161 
-#     0.03060732      0.03060732      0.03060732      0.02269396      0.01162696      0.01193422      0.01193422 
+#     0.03060732      0.03060732      0.03060732      0.02269396      0.01162696      0.01193422      0.01193422
 
 dir.create("Results/Data/Oxford_and_Stockholm/Gating")
 #These are saved. 

@@ -2,10 +2,11 @@
 #populations we have identified actually have observed and not just imputed data
 #confirming their phenotype. We will simply check if some of the most highly
 #regulated proteins are also present and different on the transcript level
+library(SingleCellExperiment)
 library(pheatmap)
 library(viridis)
 signPops <- suppressWarnings(read.csv("Results/Data/Oxford_and_Stockholm/Harmonisation/Sign_in_Stock_and_Ox.csv", row.names = 1))
-
+completeRNA <- readRDS("../External/Stockholm/Data/SCE_versions/5_post_exclusions.rds")
 
 #Here, we also include the inhibtitory KIR genes (the activating ones are not present), to see if they are expressed or not, given the lack of NKG2C. 
 transcriptList <- list("CD8T" = list(list("SignPop" = rownames(signPops)[grep("CD8T", rownames(signPops))][1],
@@ -21,7 +22,7 @@ transcriptList <- list("CD8T" = list(list("SignPop" = rownames(signPops)[grep("C
                                         "Transcripts" = rowData(completeRNA)$hgnc_symbol[grep("KIR2|KIR3", rowData(completeRNA)$hgnc_symbol)],
                                         "Direction" = rep("Unknown", length(grep("KIR2|KIR3", rowData(completeRNA)$hgnc_symbol))))))
 
-completeRNA <- readRDS("../External/Stockholm/Data/SCE_versions/5_post_exclusions.rds")
+
 #Starting with the 
 freqExpressedList <- list()
 for(a in 1:length(names(transcriptList))){
@@ -54,7 +55,7 @@ for(a in 1:length(names(transcriptList))){
 names(freqExpressedList) <- c(row.names(signPops), "NK_EOMGlow_1_KIR")
 
 #We now remove the last row and turn the matrices numeric and then use that data for
-#a few 
+#a few plots
 
 dir.create("Results/Graphics/Stockholm/Transcript_verifications")
 lapply(names(freqExpressedList), function(x){
@@ -63,4 +64,7 @@ lapply(names(freqExpressedList), function(x){
   pdf(paste0("Results/Graphics/Stockholm/Transcript_verifications/", x, "_transcript_heatmap.pdf"))
   pheatmap(locDatNumeric, color = viridis(100), cluster_rows = FALSE, cluster_cols = FALSE, breaks = seq(0,1, length = 101))
   dev.off()
+  #And the data is saved for the figure data file. 
+  write.csv(locDatComplete, paste0("Results/Data/For_figure_file/Figure_3A_etc_", x, ".csv"))
 })
+

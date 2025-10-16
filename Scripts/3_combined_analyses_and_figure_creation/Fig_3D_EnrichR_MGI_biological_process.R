@@ -51,6 +51,7 @@ randomGeneList <- lapply(edgerRandomOutcomes, function(x){
 #round. 
 
 saveRDS(randomGeneList, "Results/Data/Stockholm/Random_gene_list.rds")
+#randomGeneList <- readRDS("Results/Data/Stockholm/Random_gene_list.rds")
 #Now, we are going to order these genes depending on how common they are per cell type, per direction
 #and then we can filter out the ones that are not of interest, i.e. that are just 
 #generally over-represented when working with this data. First, we reorganise the
@@ -131,6 +132,9 @@ for(i in names(filteredGeneList)){
     p <- p+theme(axis.text.x = element_blank(), axis.title.x = element_blank(),
                  axis.text.y = element_blank(), axis.title.y = element_blank())
     ggsave(paste0("Results/Graphics/Stockholm/EnrichR_MGI/", i, "_", j, "_stripped.pdf"), width = 5.5, height = 5)
+    
+    #And we save the data
+    write.csv(locDat, paste0("Results/Data/For_figure_file/Figure_3D_MGI_terms_", i, "_", j, ".csv"))
   }
 }
 #And we also export the gene list to the same directory. 
